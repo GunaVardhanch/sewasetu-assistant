@@ -112,6 +112,33 @@ def get_db():
     )
 
 
+def init_db_if_needed():
+    """Ensure database schema is created on cloud platforms when DATABASE_URL is configured."""
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'applications')")
+        row = cur.fetchone()
+        if not (row and row[0]):
+            schema_file = os.path.join(BASE_DIR, "schema.sql")
+            if os.path.exists(schema_file):
+                with open(schema_file, "r", encoding="utf-8") as f:
+                    cur.execute(f.read())
+            migration_file = os.path.join(BASE_DIR, "migrations", "003_agent.sql")
+            if os.path.exists(migration_file):
+                with open(migration_file, "r", encoding="utf-8") as f:
+                    cur.execute(f.read())
+            conn.commit()
+            app.logger.info("Auto-initialized database tables from schema.sql")
+        cur.close()
+        conn.close()
+    except Exception as e:
+        app.logger.warning("Database schema auto-init deferred: %s" % e)
+
+
+init_db_if_needed()
+
+
 def sanitize(value, maxlen=100):
     # Trim whitespace and cap at the column width, counting characters (not
     # bytes) so Assamese/Bangla names are stored intact.
@@ -401,12 +428,16 @@ def apply():
             return render_template("apply.html", captcha_q=make_captcha())
         totp = get_totp_for_mobile(mobile)
         code = totp.now()
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute("INSERT INTO otps (mobile, code, created_at) VALUES (%s, %s, %s)",
-                    (mobile, code, datetime.now()))
-        conn.commit()
-        cur.close(); conn.close()
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute("INSERT INTO otps (mobile, code, created_at) VALUES (%s, %s, %s)",
+                        (mobile, code, datetime.now()))
+            conn.commit()
+            cur.close()
+            conn.close()
+        except Exception as e:
+            app.logger.warning("DB OTP persist deferred (TOTP active): %s" % e)
         send_sms(mobile, "Your Sewa Setu OTP is %s. Valid for 5 minutes." % code)
         session.permanent = True
         session["apply_mobile"] = mobile
@@ -435,30 +466,38 @@ def verify():
         is_valid = bool(code and totp.verify(code, valid_window=1))
 
         # 2. Database backup verification
-        conn = get_db()
-        cur = conn.cursor()
         if not is_valid:
-            cur.execute(
-                "SELECT id, code, created_at FROM otps WHERE mobile = %s ORDER BY id DESC LIMIT 10",
-                (mobile,)
-            )
-            rows = cur.fetchall()
-            for r_id, r_code, r_time in rows:
-                if secrets.compare_digest(str(r_code).strip(), code):
-                    if (datetime.now() - r_time).total_seconds() <= OTP_VALIDITY_SECONDS:
-                        is_valid = True
-                        break
+            try:
+                conn = get_db()
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT id, code, created_at FROM otps WHERE mobile = %s ORDER BY id DESC LIMIT 10",
+                    (mobile,)
+                )
+                rows = cur.fetchall()
+                for r_id, r_code, r_time in rows:
+                    if secrets.compare_digest(str(r_code).strip(), code):
+                        if (datetime.now() - r_time).total_seconds() <= OTP_VALIDITY_SECONDS:
+                            is_valid = True
+                            break
+                cur.close()
+                conn.close()
+            except Exception as e:
+                app.logger.warning("DB OTP backup lookup deferred: %s" % e)
 
         if is_valid:
-            cur.execute("DELETE FROM otps WHERE mobile = %s", (mobile,))
-            conn.commit()
-            cur.close()
-            conn.close()
+            try:
+                conn = get_db()
+                cur = conn.cursor()
+                cur.execute("DELETE FROM otps WHERE mobile = %s", (mobile,))
+                conn.commit()
+                cur.close()
+                conn.close()
+            except Exception as e:
+                app.logger.warning("DB OTP cleanup deferred: %s" % e)
             session["verified_mobile"] = mobile
             return redirect(url_for("form_step", step=1))
 
-        cur.close()
-        conn.close()
         flash("Invalid OTP. Please check the code received or request a new OTP.")
     return render_template("verify.html", mobile=mobile, demo_otp=demo_otp)
 

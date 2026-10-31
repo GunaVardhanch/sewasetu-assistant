@@ -16,6 +16,16 @@
   </a>
 </div>
 
+{% if demo_otp %}
+<div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:14px 16px; margin:16px 0; max-width:480px;">
+  <p style="margin:0 0 4px 0; font-size:12px; color:#15803d; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Verification Code (TOTP Active):</p>
+  <div style="font-size:24px; font-weight:800; letter-spacing:4px; color:#0b3d6e; font-family:Consolas, monospace;">
+    {{ demo_otp }}
+  </div>
+  <p style="margin:4px 0 0 0; font-size:11px; color:#6b7280;">Copy &amp; paste this 6-digit code below to proceed.</p>
+</div>
+{% endif %}
+
 <form method="post">
   <label>Enter 6-digit OTP</label>
   <input type="text" name="otp" maxlength="6" autofocus placeholder="Paste 6-digit code"

@@ -21,6 +21,14 @@ Sign in to continue. {% if role == 'citizen' %}<b>Enter the OTP only on this pag
         📱 Open Virtual SMS Gateway &rarr;
       </a>
     </div>
+    {% if demo_otp %}
+    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:12px 14px; margin:14px 0; max-width:440px;">
+      <p style="margin:0 0 4px 0; font-size:12px; color:#15803d; font-weight:700;">Verification Code:</p>
+      <div style="font-size:22px; font-weight:800; letter-spacing:4px; color:#0b3d6e; font-family:Consolas, monospace;">
+        {{ demo_otp }}
+      </div>
+    </div>
+    {% endif %}
     <label>Enter 6-digit OTP</label>
     <input type="text" name="otp" maxlength="6" autofocus placeholder="Paste 6-digit code" style="max-width:200px; font-size:18px; letter-spacing:2px; padding:6px 10px;">
     <p><button class="btn" type="submit">Verify</button></p>

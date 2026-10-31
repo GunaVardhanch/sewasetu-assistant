@@ -399,12 +399,16 @@ def login():
                 else:
                     totp = portal.get_totp_for_mobile(mobile)
                     code = totp.now()
-                    conn = portal.get_db()
-                    cur = conn.cursor()
-                    cur.execute("INSERT INTO otps (mobile, code, created_at) VALUES (%s, %s, %s)",
-                                (mobile, code, datetime.now()))
-                    conn.commit()
-                    cur.close(); conn.close()
+                    try:
+                        conn = portal.get_db()
+                        cur = conn.cursor()
+                        cur.execute("INSERT INTO otps (mobile, code, created_at) VALUES (%s, %s, %s)",
+                                    (mobile, code, datetime.now()))
+                        conn.commit()
+                        cur.close()
+                        conn.close()
+                    except Exception as e:
+                        portal.app.logger.warning("DB OTP insert in oauth deferred: %s" % e)
                     portal.send_sms(mobile, "Your Sewa Setu OTP is %s. Valid for 5 minutes." % code)
                     _update_request(rid, pending_mobile=mobile)
                     req["pending_mobile"] = mobile
