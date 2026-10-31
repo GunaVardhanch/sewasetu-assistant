@@ -11,10 +11,12 @@ import os
 import io
 import re
 import json
+import base64
 import random
 import secrets
 import hashlib
 import configparser
+import pyotp
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
 
@@ -24,6 +26,16 @@ IST = ZoneInfo("Asia/Kolkata")
 def now_ist():
     """The portal's clock is Indian Standard Time regardless of where the server runs."""
     return datetime.now(IST).replace(tzinfo=None)
+
+
+def get_totp_for_mobile(mobile: str) -> pyotp.TOTP:
+    """Generate deterministic RFC 6238 TOTP object for a given mobile number."""
+    secret_key = app.secret_key or "default-sewasetu-secret-key"
+    seed = f"{secret_key}:{mobile}".encode("utf-8")
+    b32 = base64.b32encode(hashlib.sha256(seed).digest()[:20]).decode("ascii").rstrip("=")
+    padding = (8 - len(b32) % 8) % 8
+    b32 += "=" * padding
+    return pyotp.TOTP(b32, digits=6, interval=OTP_VALIDITY_SECONDS)
 
 import requests
 import psycopg2
@@ -376,7 +388,8 @@ def apply():
         if len(mobile) != 10 or not mobile.isdigit():
             flash("Please enter a valid 10-digit mobile number.")
             return render_template("apply.html", captcha_q=make_captcha())
-        code = str(random.randint(100000, 999999))
+        totp = get_totp_for_mobile(mobile)
+        code = totp.now()
         conn = get_db()
         cur = conn.cursor()
         cur.execute("INSERT INTO otps (mobile, code, created_at) VALUES (%s, %s, %s)",
@@ -402,22 +415,39 @@ def verify():
     if not mobile:
         return redirect(url_for("apply"))
     if request.method == "POST":
-        code = request.form.get("otp", "").strip()
+        raw_code = request.form.get("otp", "")
+        code = re.sub(r"\D", "", raw_code)
+
+        # 1. Primary verification via PyOTP RFC 6238 TOTP
+        totp = get_totp_for_mobile(mobile)
+        is_valid = bool(code and totp.verify(code, valid_window=1))
+
+        # 2. Database backup verification
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("SELECT code, created_at FROM otps WHERE mobile = %s "
-                    "ORDER BY id DESC LIMIT 1", (mobile,))
-        row = cur.fetchone()
-        cur.close(); conn.close()
-        if row and row[0] == code:
-            age = (datetime.now() - row[1]).total_seconds()
-            if age > OTP_VALIDITY_SECONDS:
-                app.logger.warning("otp expired mobile=%s age=%ds" % (mobile, int(age)))
-                flash("OTP expired. Please request a new OTP.")
-                return redirect(url_for("apply"))
+        if not is_valid:
+            cur.execute(
+                "SELECT id, code, created_at FROM otps WHERE mobile = %s ORDER BY id DESC LIMIT 10",
+                (mobile,)
+            )
+            rows = cur.fetchall()
+            for r_id, r_code, r_time in rows:
+                if secrets.compare_digest(str(r_code).strip(), code):
+                    if (datetime.now() - r_time).total_seconds() <= OTP_VALIDITY_SECONDS:
+                        is_valid = True
+                        break
+
+        if is_valid:
+            cur.execute("DELETE FROM otps WHERE mobile = %s", (mobile,))
+            conn.commit()
+            cur.close()
+            conn.close()
             session["verified_mobile"] = mobile
             return redirect(url_for("form_step", step=1))
-        flash("Invalid OTP.")
+
+        cur.close()
+        conn.close()
+        flash("Invalid OTP. Please check the code received or request a new OTP.")
     return render_template("verify.html", mobile=mobile)
 
 

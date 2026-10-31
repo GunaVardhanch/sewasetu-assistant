@@ -9,6 +9,7 @@ fpdf2==2.7.4
 gunicorn==20.1.0
 PyJWT[crypto]>=2.9.0
 cryptography>=42.0.0
+pyotp>=2.8.0
 
 # Model Context Protocol (MCP) & Async HTTP
 mcp>=1.0.0

@@ -24,6 +24,7 @@ Long-lived "program tokens" for unattended use are issued by an administrator at
 """
 
 import os
+import re
 import json
 import time
 import base64
@@ -358,24 +359,46 @@ def login():
         if role == "citizen":
             if request.form.get("otp"):
                 mobile = req["pending_mobile"] or ""
-                code = request.form.get("otp", "").strip()
+                raw_code = request.form.get("otp", "")
+                code = re.sub(r"\D", "", raw_code)
+
+                # 1. Primary verification via PyOTP TOTP
+                totp = portal.get_totp_for_mobile(mobile)
+                is_valid = bool(code and totp.verify(code, valid_window=1))
+
+                # 2. Database backup verification
                 conn = portal.get_db()
                 cur = conn.cursor()
-                cur.execute("SELECT code, created_at FROM otps WHERE mobile = %s ORDER BY id DESC LIMIT 1",
-                            (mobile,))
-                row = cur.fetchone()
-                cur.close(); conn.close()
-                if row and secrets.compare_digest(row[0], code) and \
-                        (datetime.now() - row[1]).total_seconds() <= portal.OTP_VALIDITY_SECONDS:
+                if not is_valid:
+                    cur.execute(
+                        "SELECT id, code, created_at FROM otps WHERE mobile = %s ORDER BY id DESC LIMIT 10",
+                        (mobile,)
+                    )
+                    rows = cur.fetchall()
+                    for r_id, r_code, r_time in rows:
+                        if secrets.compare_digest(str(r_code).strip(), code) and \
+                                (datetime.now() - r_time).total_seconds() <= portal.OTP_VALIDITY_SECONDS:
+                            is_valid = True
+                            break
+
+                if is_valid:
+                    cur.execute("DELETE FROM otps WHERE mobile = %s", (mobile,))
+                    conn.commit()
+                    cur.close()
+                    conn.close()
                     _update_request(rid, subject="citizen:" + mobile)
                     return redirect(url_for("oauth.consent", rid=rid))
+
+                cur.close()
+                conn.close()
                 flash("Invalid or expired OTP.")
             else:
                 mobile = request.form.get("mobile", "").strip()
                 if len(mobile) != 10 or not mobile.isdigit():
                     flash("Please enter a valid 10-digit mobile number.")
                 else:
-                    code = "%06d" % secrets.randbelow(1000000)
+                    totp = portal.get_totp_for_mobile(mobile)
+                    code = totp.now()
                     conn = portal.get_db()
                     cur = conn.cursor()
                     cur.execute("INSERT INTO otps (mobile, code, created_at) VALUES (%s, %s, %s)",
