@@ -1,114 +1,39 @@
-"""PurvSMS - simulated state SMS gateway with live Twilio forwarding.
+"""PurvSMS - state simulated SMS gateway.
 
 Stands in for the telecom SMS provider. Messages sent via the API appear on the
-web console at / once "delivered", after a short carrier latency.
-If Twilio credentials are configured, messages are simultaneously dispatched
-to the real phone number over SMS.
+web console at / once "delivered", after a short simulated carrier latency.
 """
 
-import os
 import random
 import time
-import urllib.request
-import urllib.parse
-import urllib.error
-import base64
-import logging
 from flask import Flask, request, jsonify, render_template_string
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.INFO)
-
-# Optional Twilio Integration
-TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "AC6bde3664452d021bb741d27e7e989f9a").strip()
-TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "54eb734cff4acbda691c021f053c83e5").strip()
-TWILIO_FROM_NUMBER = os.environ.get("TWILIO_FROM_NUMBER", "+17372508034").strip()
-TWILIO_VERIFY_SERVICE_SID = os.environ.get("TWILIO_VERIFY_SERVICE_SID", "VAdf7e1914110271e0a686422a93287772").strip()
-DEFAULT_COUNTRY_CODE = os.environ.get("DEFAULT_COUNTRY_CODE", "+91").strip()
-
-
-def _send_twilio_sms(to_number: str, message_body: str):
-    """Dispatch real SMS to destination number via Twilio Verify or Messages API."""
-    if not (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN):
-        return None
-
-    # Format destination number to E.164
-    to_formatted = to_number.strip()
-    if not to_formatted.startswith("+"):
-        to_formatted = f"{DEFAULT_COUNTRY_CODE}{to_formatted}"
-
-    # 1. Use Twilio Verify API (official for OTPs, bypasses trial template restrictions)
-    if TWILIO_VERIFY_SERVICE_SID:
-        url = f"https://verify.twilio.com/v2/Services/{TWILIO_VERIFY_SERVICE_SID}/Verifications"
-        post_fields = {
-            "To": to_formatted,
-            "Channel": "sms"
-        }
-        encoded_data = urllib.parse.urlencode(post_fields).encode("utf-8")
-        req = urllib.request.Request(url, data=encoded_data, method="POST")
-        credentials = f"{TWILIO_ACCOUNT_SID}:{TWILIO_AUTH_TOKEN}"
-        encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
-        req.add_header("Authorization", f"Basic {encoded_creds}")
-        req.add_header("Content-Type", "application/x-www-form-urlencoded")
-        try:
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                app.logger.info(f"Twilio Verify SMS dispatched successfully to {to_formatted} (status: {resp.status})")
-                return resp.status
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode("utf-8", errors="ignore")
-            app.logger.error(f"Twilio Verify error for {to_formatted}: HTTP {e.code} - {error_body}")
-        except Exception as e:
-            app.logger.error(f"Failed to send Twilio Verify SMS to {to_formatted}: {e}")
-
-    # 2. Fallback to Messages API
-    if TWILIO_FROM_NUMBER:
-        url = f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_ACCOUNT_SID}/Messages.json"
-        post_fields = {
-            "To": to_formatted,
-            "From": TWILIO_FROM_NUMBER,
-            "Body": message_body,
-        }
-        encoded_data = urllib.parse.urlencode(post_fields).encode("utf-8")
-        req = urllib.request.Request(url, data=encoded_data, method="POST")
-        credentials = f"{TWILIO_ACCOUNT_SID}:{TWILIO_AUTH_TOKEN}"
-        encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
-        req.add_header("Authorization", f"Basic {encoded_creds}")
-        req.add_header("Content-Type", "application/x-www-form-urlencoded")
-        try:
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                app.logger.info(f"Twilio SMS dispatched successfully to {to_formatted} (status: {resp.status})")
-                return resp.status
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode("utf-8", errors="ignore")
-            app.logger.error(f"Failed to send Twilio SMS to {to_formatted}: HTTP {e.code} - {error_body}")
-            return None
-        except Exception as e:
-            app.logger.error(f"Failed to send Twilio SMS to {to_formatted}: {e}")
-            return None
 
 MESSAGES = []  # {id, to, text, sent_at, delivery_at}
 
 # Carrier queue latency, seconds.
-DELAY_MIN = 1
-DELAY_MAX = 4
+DELAY_MIN = 0
+DELAY_MAX = 2
 
 CONSOLE = """
 <!doctype html><html><head><title>PurvSMS Console</title>
-<meta http-equiv="refresh" content="5">
+<meta http-equiv="refresh" content="3">
 <style>
 body{font-family:Arial,sans-serif;margin:24px;background:#f4f4f4}
 h2{color:#1a3c6e} table{border-collapse:collapse;background:#fff;width:100%}
-td,th{border:1px solid #ccc;padding:6px 10px;font-size:14px;text-align:left}
-.q{color:#b36b00}.d{color:#1b7e3c}
+td,th{border:1px solid #ccc;padding:8px 12px;font-size:14px;text-align:left}
+.q{color:#b36b00;font-weight:bold}.d{color:#1b7e3c;font-weight:bold}
+.code-box{background:#e8f0fe;color:#1a3c6e;font-size:16px;font-weight:bold;padding:2px 8px;border-radius:4px;display:inline-block;}
 </style></head><body>
-<h2>PurvSMS Gateway Console (simulation)</h2>
-<p>Messages appear below once the carrier delivers them. Auto-refreshes every 5s.</p>
-<table><tr><th>#</th><th>To</th><th>Message</th><th>Sent</th><th>Status</th></tr>
+<h2>PurvSMS Gateway Console (Virtual Telecom)</h2>
+<p>Incoming citizen OTPs and SMS notifications appear below. Auto-refreshes every 3s.</p>
+<table><tr><th>#</th><th>Mobile</th><th>Message &amp; OTP Code</th><th>Sent Time</th><th>Carrier Status</th></tr>
 {% for m in messages %}
-<tr><td>{{m.id}}</td><td>{{m.to}}</td>
-<td>{% if m.delivered %}{{m.text}}{% else %}<i>(in transit)</i>{% endif %}</td>
+<tr><td>{{m.id}}</td><td><b>{{m.to}}</b></td>
+<td>{% if m.delivered %}<span class="code-box">{{m.text}}</span>{% else %}<i>(transmitting...)</i>{% endif %}</td>
 <td>{{m.sent_hhmm}}</td>
-<td>{% if m.delivered %}<span class="d">Delivered</span>
+<td>{% if m.delivered %}<span class="d">&#10003; Delivered</span>
 {% else %}<span class="q">Queued &middot; ~{{m.eta}}s</span>{% endif %}</td></tr>
 {% endfor %}
 </table></body></html>
@@ -131,10 +56,6 @@ def send():
         "delivery_at": now + random.randint(DELAY_MIN, DELAY_MAX),
     }
     MESSAGES.append(msg)
-
-    # Forward to real mobile number if Twilio credentials are configured
-    _send_twilio_sms(to, text)
-
     return jsonify({"status": "queued", "id": msg["id"]})
 
 

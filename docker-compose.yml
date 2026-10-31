@@ -23,9 +23,6 @@ services:
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key-2026}
       SCHEME_DEADLINE: ${SCHEME_DEADLINE:-2026-12-31 23:59}
       AGENT_ENABLED_BLOCKS: ${AGENT_ENABLED_BLOCKS:-Sonari,Rajapara,Dhemaji Pathar,Borgaon,Namti,Khelua}
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
-      TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID:-}
     depends_on:
       - db
       - smsgw
@@ -46,11 +43,6 @@ services:
 
   smsgw:
     build: ./smsgw
-    environment:
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
-      TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER:-}
-      DEFAULT_COUNTRY_CODE: ${DEFAULT_COUNTRY_CODE:-+91}
     # internal only — reached by the app over the docker network and exposed to
     # users via the app at /__gateway/ (so no second host port is needed)
     expose:

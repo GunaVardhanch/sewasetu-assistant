@@ -39,35 +39,6 @@ def get_totp_for_mobile(mobile: str) -> pyotp.TOTP:
     b32 += "=" * padding
     return pyotp.TOTP(b32, digits=6, interval=OTP_VALIDITY_SECONDS)
 
-
-TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "AC6bde3664452d021bb741d27e7e989f9a").strip()
-TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "54eb734cff4acbda691c021f053c83e5").strip()
-TWILIO_VERIFY_SERVICE_SID = os.environ.get("TWILIO_VERIFY_SERVICE_SID", "VAdf7e1914110271e0a686422a93287772").strip()
-
-
-def check_twilio_verify(mobile: str, code: str) -> bool:
-    """Verify live SMS code with Twilio Verify API."""
-    if not (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_VERIFY_SERVICE_SID and code):
-        return False
-    to_formatted = mobile.strip()
-    if not to_formatted.startswith("+"):
-        to_formatted = f"+91{to_formatted}"
-    url = f"https://verify.twilio.com/v2/Services/{TWILIO_VERIFY_SERVICE_SID}/VerificationCheck"
-    post_fields = {"To": to_formatted, "Code": code}
-    encoded_data = urllib.parse.urlencode(post_fields).encode("utf-8")
-    req = urllib.request.Request(url, data=encoded_data, method="POST")
-    credentials = f"{TWILIO_ACCOUNT_SID}:{TWILIO_AUTH_TOKEN}"
-    encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
-    req.add_header("Authorization", f"Basic {encoded_creds}")
-    req.add_header("Content-Type", "application/x-www-form-urlencoded")
-    try:
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            data = json.loads(resp.read().decode())
-            return data.get("status") == "approved"
-    except Exception as e:
-        app.logger.warning(f"Twilio VerificationCheck error: {e}")
-        return False
-
 import requests
 import psycopg2
 from flask import (Flask, request, session, redirect, url_for, render_template,
@@ -451,8 +422,8 @@ def verify():
         raw_code = request.form.get("otp", "")
         code = re.sub(r"\D", "", raw_code)
 
-        # 1. Primary verification via Twilio Verify (live SMS) or PyOTP RFC 6238 TOTP
-        is_valid = check_twilio_verify(mobile, code) or bool(code and totp.verify(code, valid_window=1))
+        # 1. Primary verification via PyOTP RFC 6238 TOTP
+        is_valid = bool(code and totp.verify(code, valid_window=1))
 
         # 2. Database backup verification
         conn = get_db()

@@ -12,14 +12,17 @@ Sign in to continue. {% if role == 'citizen' %}<b>Enter the OTP only on this pag
   </form>
   {% else %}
   <form method="post">
-    <p class="note">An OTP has been generated for <b>{{ pending_mobile }}</b>.</p>
-    <div style="background:#e8f0fe; border:1px solid #c2dbfe; border-radius:6px; padding:10px 14px; margin-bottom:14px; max-width:380px;">
-      <span style="font-size:13px; color:#1a3c6e;">Your Verification Code:</span><br>
-      <span style="font-size:24px; font-weight:bold; letter-spacing:4px; color:#1a3c6e;">{{ demo_otp }}</span>
-      <div style="font-size:11px; color:#555; margin-top:3px;">(Generated via PyOTP &middot; Valid for 5 minutes)</div>
+    <p class="note">An OTP has been dispatched to <b>{{ pending_mobile }}</b> via the Virtual Telecom Gateway.</p>
+    <div style="background:#f0f7ff; border:1px solid #b6d4fe; border-radius:8px; padding:14px; margin:14px 0; max-width:440px;">
+      <p style="margin:0 0 8px 0; font-size:13px; color:#084298;">
+        <b>Virtual SMS Gateway:</b> Click the button below to view and copy your OTP:
+      </p>
+      <a href="/__gateway/" target="_blank" class="btn" style="background:#1a3c6e; color:#fff; text-decoration:none; padding:6px 14px; border-radius:4px; font-weight:bold; display:inline-block; font-size:13px;">
+        📱 Open Virtual SMS Gateway &rarr;
+      </a>
     </div>
     <label>Enter 6-digit OTP</label>
-    <input type="text" name="otp" maxlength="6" value="{{ demo_otp }}" style="max-width:180px; font-size:18px; letter-spacing:2px; font-weight:bold;">
+    <input type="text" name="otp" maxlength="6" autofocus placeholder="Paste 6-digit code" style="max-width:200px; font-size:18px; letter-spacing:2px; padding:6px 10px;">
     <p><button class="btn" type="submit">Verify</button></p>
   </form>
   {% endif %}
