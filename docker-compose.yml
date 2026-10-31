@@ -23,6 +23,9 @@ services:
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key-2026}
       SCHEME_DEADLINE: ${SCHEME_DEADLINE:-2026-12-31 23:59}
       AGENT_ENABLED_BLOCKS: ${AGENT_ENABLED_BLOCKS:-Sonari,Rajapara,Dhemaji Pathar,Borgaon,Namti,Khelua}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID:-}
     depends_on:
       - db
       - smsgw

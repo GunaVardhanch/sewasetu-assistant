@@ -20,15 +20,16 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # Optional Twilio Integration
-TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "").strip()
-TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "").strip()
-TWILIO_FROM_NUMBER = os.environ.get("TWILIO_FROM_NUMBER", "").strip()
+TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "AC6bde3664452d021bb741d27e7e989f9a").strip()
+TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "54eb734cff4acbda691c021f053c83e5").strip()
+TWILIO_FROM_NUMBER = os.environ.get("TWILIO_FROM_NUMBER", "+17372508034").strip()
+TWILIO_VERIFY_SERVICE_SID = os.environ.get("TWILIO_VERIFY_SERVICE_SID", "VA6184e6464d86bdc1a1b5fb9b4636a1d5").strip()
 DEFAULT_COUNTRY_CODE = os.environ.get("DEFAULT_COUNTRY_CODE", "+91").strip()
 
 
 def _send_twilio_sms(to_number: str, message_body: str):
-    """Dispatch real SMS to destination number via Twilio REST API."""
-    if not (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_FROM_NUMBER):
+    """Dispatch real SMS to destination number via Twilio Verify or Messages API."""
+    if not (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN):
         return None
 
     # Format destination number to E.164
@@ -36,31 +37,54 @@ def _send_twilio_sms(to_number: str, message_body: str):
     if not to_formatted.startswith("+"):
         to_formatted = f"{DEFAULT_COUNTRY_CODE}{to_formatted}"
 
-    url = f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_ACCOUNT_SID}/Messages.json"
-    post_fields = {
-        "To": to_formatted,
-        "From": TWILIO_FROM_NUMBER,
-        "Body": message_body,
-    }
-    encoded_data = urllib.parse.urlencode(post_fields).encode("utf-8")
+    # 1. Use Twilio Verify API (official for OTPs, bypasses trial template restrictions)
+    if TWILIO_VERIFY_SERVICE_SID:
+        url = f"https://verify.twilio.com/v2/Services/{TWILIO_VERIFY_SERVICE_SID}/Verifications"
+        post_fields = {
+            "To": to_formatted,
+            "Channel": "sms"
+        }
+        encoded_data = urllib.parse.urlencode(post_fields).encode("utf-8")
+        req = urllib.request.Request(url, data=encoded_data, method="POST")
+        credentials = f"{TWILIO_ACCOUNT_SID}:{TWILIO_AUTH_TOKEN}"
+        encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
+        req.add_header("Authorization", f"Basic {encoded_creds}")
+        req.add_header("Content-Type", "application/x-www-form-urlencoded")
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                app.logger.info(f"Twilio Verify SMS dispatched successfully to {to_formatted} (status: {resp.status})")
+                return resp.status
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode("utf-8", errors="ignore")
+            app.logger.error(f"Twilio Verify error for {to_formatted}: HTTP {e.code} - {error_body}")
+        except Exception as e:
+            app.logger.error(f"Failed to send Twilio Verify SMS to {to_formatted}: {e}")
 
-    req = urllib.request.Request(url, data=encoded_data, method="POST")
-    credentials = f"{TWILIO_ACCOUNT_SID}:{TWILIO_AUTH_TOKEN}"
-    encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
-    req.add_header("Authorization", f"Basic {encoded_creds}")
-    req.add_header("Content-Type", "application/x-www-form-urlencoded")
-
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            app.logger.info(f"Twilio SMS dispatched successfully to {to_formatted} (status: {resp.status})")
-            return resp.status
-    except urllib.error.HTTPError as e:
-        error_body = e.read().decode("utf-8", errors="ignore")
-        app.logger.error(f"Failed to send Twilio SMS to {to_formatted}: HTTP {e.code} - {error_body}")
-        return None
-    except Exception as e:
-        app.logger.error(f"Failed to send Twilio SMS to {to_formatted}: {e}")
-        return None
+    # 2. Fallback to Messages API
+    if TWILIO_FROM_NUMBER:
+        url = f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_ACCOUNT_SID}/Messages.json"
+        post_fields = {
+            "To": to_formatted,
+            "From": TWILIO_FROM_NUMBER,
+            "Body": message_body,
+        }
+        encoded_data = urllib.parse.urlencode(post_fields).encode("utf-8")
+        req = urllib.request.Request(url, data=encoded_data, method="POST")
+        credentials = f"{TWILIO_ACCOUNT_SID}:{TWILIO_AUTH_TOKEN}"
+        encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
+        req.add_header("Authorization", f"Basic {encoded_creds}")
+        req.add_header("Content-Type", "application/x-www-form-urlencoded")
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                app.logger.info(f"Twilio SMS dispatched successfully to {to_formatted} (status: {resp.status})")
+                return resp.status
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode("utf-8", errors="ignore")
+            app.logger.error(f"Failed to send Twilio SMS to {to_formatted}: HTTP {e.code} - {error_body}")
+            return None
+        except Exception as e:
+            app.logger.error(f"Failed to send Twilio SMS to {to_formatted}: {e}")
+            return None
 
 MESSAGES = []  # {id, to, text, sent_at, delivery_at}
 
