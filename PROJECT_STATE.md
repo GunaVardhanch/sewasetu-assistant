@@ -73,6 +73,7 @@ If the workstation just booted back up after a power cut:
 ## 5. Git Commit Log
 
 ```
+8856b39 docs: add home setup guide, project README, requirements, and .env template
 a395bea docs(phase-8): 1-page design note and 3-minute Loom video script
 fad4aa0 docs: update PROJECT_STATE for Phase 7 completion
 02a56cc feat(phase-7): production docker-compose and Caddy TLS reverse proxy
