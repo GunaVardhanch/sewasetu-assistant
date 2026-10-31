@@ -42,7 +42,7 @@ def get_totp_for_mobile(mobile: str) -> pyotp.TOTP:
 
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "AC6bde3664452d021bb741d27e7e989f9a").strip()
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "54eb734cff4acbda691c021f053c83e5").strip()
-TWILIO_VERIFY_SERVICE_SID = os.environ.get("TWILIO_VERIFY_SERVICE_SID", "VA6184e6464d86bdc1a1b5fb9b4636a1d5").strip()
+TWILIO_VERIFY_SERVICE_SID = os.environ.get("TWILIO_VERIFY_SERVICE_SID", "VAdf7e1914110271e0a686422a93287772").strip()
 
 
 def check_twilio_verify(mobile: str, code: str) -> bool:
