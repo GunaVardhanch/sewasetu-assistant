@@ -30,19 +30,16 @@ If the workstation just booted back up after a power cut:
 
 ## 2. Current Work Item
 
-- **Current Stage**: **Phase 8: Design Note (DESIGN.md) & 3-Minute Loom Video Script**
-- **In-Progress Task**:
-  1. Author the 1-page `DESIGN.md` addressing:
-     - The three decisions that mattered most (D1, D3, D4 / Invariants 1–5).
-     - The one decision we would make differently with more time (e.g. streaming LLM tool calling vs synchronous JSON-RPC turn cycles).
-     - Architectural diagrams and system boundaries.
-  2. Write the 3-minute Loom video recording script (face and screen walkthrough):
-     - Hook & director briefing context.
-     - Architecture & MCP endpoints walkthrough (`/mcp/citizen` & `/mcp/officer`).
-     - Evals demo & `/eval-dashboard` walkthrough with live 18 personas.
-     - Database invariants & what the evals taught us.
-  3. Push all commits to the remote GitHub repository: `https://github.com/GunaVardhanch/sewasetu-assistant.git`.
-  4. Ensure assessor `harshnisar` is invited read-only on GitHub.
+- **Current Stage**: **Project Complete — Verification & Push to GitHub Remote**
+- **Status**: **ALL PHASES (0–8) COMPLETED & PASSING 100%**
+- **Final Steps**:
+  1. Push full un-squashed commit history to remote repository:
+     ```powershell
+     git push -u origin master
+     ```
+  2. Confirm assessor `harshnisar` is invited with read-only access to GitHub repository `sewasetu-assistant`.
+  3. Export a backup zip of the repository including `.git` folder for submission package.
+  4. Record the 3-minute Loom video using `LOOM_SCRIPT.md`.
 
 ---
 
@@ -57,8 +54,8 @@ If the workstation just booted back up after a power cut:
 | **Phase 4** | Officer MCP Server | **COMPLETED** | Git commit `e60cb0b`. All 5 Phase 4 tests passed (`test_gate1_officer_my_queue`, `test_gate2_officer_overdue_summary`, `test_gate3_officer_view_case_with_flags`, `test_gate4_officer_approve_case`, `test_gate5_officer_reject_case_requires_reason`). |
 | **Phase 5** | Personas & Evals Suite | **COMPLETED** | Git commit `4bfb5e0`. 18 Personas (C1–C12, O1–O6) passed 100% in `tests/test_phase5.py` with multi-turn conversations and PostgreSQL applications & audit_log verification. |
 | **Phase 6** | Public Eval Dashboard | **COMPLETED** | Git commit `b5c3c8b`. All 2 Phase 6 tests passed (`test_eval_dashboard_html_page`, `test_eval_dashboard_json_api`). Public `/eval-dashboard` and `/eval-dashboard/data` live. |
-| **Phase 7** | Deployment & HTTPS | **COMPLETED** | Git commit pending. `docker-compose.prod.yml`, `Caddyfile`, `Dockerfile.mcp`, all 3 tests in `tests/test_phase7.py` passed. |
-| **Phase 8** | Design Note & Loom Script | **IN PROGRESS** | 1-page `DESIGN.md` finalization, 3-minute Loom video recording script, GitHub push. |
+| **Phase 7** | Deployment & HTTPS | **COMPLETED** | Git commit `02a56cc`. `docker-compose.prod.yml`, `Caddyfile`, `Dockerfile.mcp`, all 3 tests in `tests/test_phase7.py` passed. |
+| **Phase 8** | Design Note & Loom Script | **COMPLETED** | Git commit `a395bea`. 1-page `DESIGN.md` addressing the three decisions that mattered most & the one differently; timed 3-minute `LOOM_SCRIPT.md`. |
 
 ---
 
@@ -76,6 +73,9 @@ If the workstation just booted back up after a power cut:
 ## 5. Git Commit Log
 
 ```
+a395bea docs(phase-8): 1-page design note and 3-minute Loom video script
+fad4aa0 docs: update PROJECT_STATE for Phase 7 completion
+02a56cc feat(phase-7): production docker-compose and Caddy TLS reverse proxy
 19be4bb docs: update PROJECT_STATE for Phase 5 & 6 completion
 b5c3c8b feat(phase-6): public eval dashboard with transcripts and database verification
 4bfb5e0 feat(phase-5): 18 persona evals suite with automated database verification
