@@ -41,3 +41,4 @@ The portal remains the sole system of record. MCP servers never access the datab
 3. **Strict Audience & Scope Isolation**: Citizen tools cannot be reached with officer tokens or portal tokens, and vice-versa. Strict RFC 8707 audience checks enforce canonical server URLs.
 4. **Session Termination**: Instant session revocation supported through live token checks against `oauth_refresh_tokens` and `oauth_program_tokens`.
 5. **No Hallucinated Data**: Tools return explicit missing fields and actionable error messages, never default guesses.
+

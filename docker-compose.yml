@@ -7,11 +7,11 @@ services:
       POSTGRES_PASSWORD: sewasetu123
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./app/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./portal/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ./seed/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
 
   app:
-    build: ./app
+    build: ./portal
     ports:
       - "8000:8000"
     environment:
@@ -28,7 +28,7 @@ services:
       - applogs:/var/log/sewasetu
 
   scheduler:
-    build: ./app
+    build: ./portal
     # Run the deemed-approval job once at startup (so a freshly restored
     # database is brought up to date), then hand over to cron for the nightly run.
     command: ["sh", "-c", "until python /app/scripts/deemed_approval.py; do sleep 5; done; exec cron -f"]

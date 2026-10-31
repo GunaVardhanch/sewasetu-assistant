@@ -13,3 +13,4 @@ INVARIANTS (never violate):
 10. Every phase ends with passing tests and a git commit. No squashing.
 
 STACK: Python 3.11, official `mcp` Python SDK (streamable HTTP, stateless), Flask portal as-is plus patches, Postgres 15, Docker Compose, Caddy for HTTPS.
+
