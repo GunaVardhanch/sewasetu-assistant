@@ -1,14 +1,66 @@
-"""PurvSMS - simulated state SMS gateway.
+"""PurvSMS - simulated state SMS gateway with live Twilio forwarding.
 
 Stands in for the telecom SMS provider. Messages sent via the API appear on the
 web console at / once "delivered", after a short carrier latency.
+If Twilio credentials are configured, messages are simultaneously dispatched
+to the real phone number over SMS.
 """
 
+import os
 import random
 import time
+import urllib.request
+import urllib.parse
+import urllib.error
+import base64
+import logging
 from flask import Flask, request, jsonify, render_template_string
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
+
+# Optional Twilio Integration
+TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "").strip()
+TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN", "").strip()
+TWILIO_FROM_NUMBER = os.environ.get("TWILIO_FROM_NUMBER", "").strip()
+DEFAULT_COUNTRY_CODE = os.environ.get("DEFAULT_COUNTRY_CODE", "+91").strip()
+
+
+def _send_twilio_sms(to_number: str, message_body: str):
+    """Dispatch real SMS to destination number via Twilio REST API."""
+    if not (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and TWILIO_FROM_NUMBER):
+        return None
+
+    # Format destination number to E.164
+    to_formatted = to_number.strip()
+    if not to_formatted.startswith("+"):
+        to_formatted = f"{DEFAULT_COUNTRY_CODE}{to_formatted}"
+
+    url = f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_ACCOUNT_SID}/Messages.json"
+    post_fields = {
+        "To": to_formatted,
+        "From": TWILIO_FROM_NUMBER,
+        "Body": message_body,
+    }
+    encoded_data = urllib.parse.urlencode(post_fields).encode("utf-8")
+
+    req = urllib.request.Request(url, data=encoded_data, method="POST")
+    credentials = f"{TWILIO_ACCOUNT_SID}:{TWILIO_AUTH_TOKEN}"
+    encoded_creds = base64.b64encode(credentials.encode("utf-8")).decode("ascii")
+    req.add_header("Authorization", f"Basic {encoded_creds}")
+    req.add_header("Content-Type", "application/x-www-form-urlencoded")
+
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            app.logger.info(f"Twilio SMS dispatched successfully to {to_formatted} (status: {resp.status})")
+            return resp.status
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="ignore")
+        app.logger.error(f"Failed to send Twilio SMS to {to_formatted}: HTTP {e.code} - {error_body}")
+        return None
+    except Exception as e:
+        app.logger.error(f"Failed to send Twilio SMS to {to_formatted}: {e}")
+        return None
 
 MESSAGES = []  # {id, to, text, sent_at, delivery_at}
 
@@ -55,6 +107,10 @@ def send():
         "delivery_at": now + random.randint(DELAY_MIN, DELAY_MAX),
     }
     MESSAGES.append(msg)
+
+    # Forward to real mobile number if Twilio credentials are configured
+    _send_twilio_sms(to, text)
+
     return jsonify({"status": "queued", "id": msg["id"]})
 
 

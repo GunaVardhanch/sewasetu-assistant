@@ -43,6 +43,11 @@ services:
 
   smsgw:
     build: ./smsgw
+    environment:
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER:-}
+      DEFAULT_COUNTRY_CODE: ${DEFAULT_COUNTRY_CODE:-+91}
     # internal only — reached by the app over the docker network and exposed to
     # users via the app at /__gateway/ (so no second host port is needed)
     expose:
