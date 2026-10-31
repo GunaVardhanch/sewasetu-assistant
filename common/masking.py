@@ -24,3 +24,4 @@ def mask_mobile(mob: str) -> str:
     if len(clean) <= 4:
         return clean
     return clean[:2] + "*" * (len(clean) - 4) + clean[-2:]
+

@@ -674,25 +674,34 @@ def officer_overdue_summary():
     })
 
 
-@agent_api.get("/officer/case/<int:app_id>")
-def officer_view_case(app_id):
+@agent_api.get("/officer/case/<string:app_ref>")
+def officer_view_case(app_ref):
     officer = _extract_officer_username()
     if not officer:
         return jsonify({"error": "invalid_subject", "message": "Valid officer subject required"}), 403
 
     conn = portal.get_db()
     cur = conn.cursor()
-    cur.execute(
-        """SELECT id, application_no, applicant_name, mobile, dob, gender, 
-                  marital_status, husband_name, village, block, bank_account, 
-                  ifsc, doc_path, status, submitted_at, decided_at, decided_by 
-           FROM applications WHERE id = %s""",
-        (app_id,)
-    )
+    if str(app_ref).isdigit():
+        cur.execute(
+            """SELECT id, application_no, applicant_name, mobile, dob, gender, 
+                      marital_status, husband_name, village, block, bank_account, 
+                      ifsc, doc_path, status, submitted_at, decided_at, decided_by 
+               FROM applications WHERE id = %s""",
+            (int(app_ref),)
+        )
+    else:
+        cur.execute(
+            """SELECT id, application_no, applicant_name, mobile, dob, gender, 
+                      marital_status, husband_name, village, block, bank_account, 
+                      ifsc, doc_path, status, submitted_at, decided_at, decided_by 
+               FROM applications WHERE application_no = %s""",
+            (str(app_ref),)
+        )
     row = cur.fetchone()
     if not row:
         cur.close(); conn.close()
-        return jsonify({"error": "not_found", "message": f"Application {app_id} not found."}), 404
+        return jsonify({"error": "not_found", "message": f"Application {app_ref} not found."}), 404
 
     (app_id, app_no, name, mob, dob, gender, marital, husband, vil, blk,
      bank_acc, ifsc, doc_path, status, sub_at, dec_at, dec_by) = row
@@ -795,12 +804,12 @@ def officer_decide():
         return jsonify({"error": "invalid_subject", "message": "Valid officer subject required"}), 403
 
     body = request.get_json(silent=True) or {}
-    app_id = body.get("application_id")
+    app_ref = body.get("application_id") or body.get("application_no")
     decision = (body.get("decision") or "").upper().strip()
     reason = (body.get("reason") or body.get("note") or "").strip()
 
-    if not app_id:
-        return jsonify({"error": "missing_id", "message": "application_id is required."}), 400
+    if not app_ref:
+        return jsonify({"error": "missing_id", "message": "application_id or application_no is required."}), 400
     if decision not in ("APPROVED", "REJECTED"):
         return jsonify({"error": "invalid_decision", "message": "Decision must be APPROVED or REJECTED."}), 400
     if decision == "REJECTED" and len(reason) < 5:
@@ -813,13 +822,16 @@ def officer_decide():
     cur = conn.cursor()
 
     # Query current state
-    cur.execute("SELECT application_no, status, decided_by, decided_at FROM applications WHERE id = %s", (app_id,))
+    if str(app_ref).isdigit():
+        cur.execute("SELECT id, application_no, status, decided_by, decided_at FROM applications WHERE id = %s", (int(app_ref),))
+    else:
+        cur.execute("SELECT id, application_no, status, decided_by, decided_at FROM applications WHERE application_no = %s", (str(app_ref),))
     row = cur.fetchone()
     if not row:
         cur.close(); conn.close()
-        return jsonify({"error": "not_found", "message": f"Application {app_id} does not exist."}), 404
+        return jsonify({"error": "not_found", "message": f"Application {app_ref} does not exist."}), 404
 
-    app_no, current_status, decided_by, decided_at = row
+    app_id, app_no, current_status, decided_by, decided_at = row
 
     if current_status != "PENDING":
         cur.close(); conn.close()

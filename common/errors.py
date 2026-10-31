@@ -27,3 +27,4 @@ def format_tool_success(message: str, next_step: str, data: Optional[Dict[str, A
     if data:
         out.update(data)
     return out
+
