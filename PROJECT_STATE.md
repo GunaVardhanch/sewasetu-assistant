@@ -30,17 +30,19 @@ If the workstation just booted back up after a power cut:
 
 ## 2. Current Work Item
 
-- **Current Stage**: **Phase 7: Production Deployment & Caddy TLS Reverse Proxy**
+- **Current Stage**: **Phase 8: Design Note (DESIGN.md) & 3-Minute Loom Video Script**
 - **In-Progress Task**:
-  1. Create `docker-compose.prod.yml` and `Caddyfile` exposing unified public reverse proxy:
-     - `/` -> `app:8000` (Flask portal system of record)
-     - `/mcp/citizen` -> `mcp-citizen:8001` (Citizen MCP server, Streamable HTTP)
-     - `/mcp/officer` -> `mcp-officer:8002` (Officer MCP server, Streamable HTTP)
-     - `/eval-dashboard` -> `app:8000/eval-dashboard` (Public interactive evaluation dashboard)
-     - `/__gateway/` -> `app:8000/__gateway/` (Proxied SMS gateway console & inbox)
-  2. Implement Dockerfiles for `mcp-citizen` and `mcp-officer` services.
-  3. Verify production stack orchestration and routing.
-  4. Proceed to Phase 8: 1-page `DESIGN.md` and 3-minute Loom video script.
+  1. Author the 1-page `DESIGN.md` addressing:
+     - The three decisions that mattered most (D1, D3, D4 / Invariants 1–5).
+     - The one decision we would make differently with more time (e.g. streaming LLM tool calling vs synchronous JSON-RPC turn cycles).
+     - Architectural diagrams and system boundaries.
+  2. Write the 3-minute Loom video recording script (face and screen walkthrough):
+     - Hook & director briefing context.
+     - Architecture & MCP endpoints walkthrough (`/mcp/citizen` & `/mcp/officer`).
+     - Evals demo & `/eval-dashboard` walkthrough with live 18 personas.
+     - Database invariants & what the evals taught us.
+  3. Push all commits to the remote GitHub repository: `https://github.com/GunaVardhanch/sewasetu-assistant.git`.
+  4. Ensure assessor `harshnisar` is invited read-only on GitHub.
 
 ---
 
@@ -53,10 +55,10 @@ If the workstation just booted back up after a power cut:
 | **Phase 2** | Shared Auth & MCP Skeletons | **COMPLETED** | Git commit `5dbca25`. All 8 Phase 2 tests passed (`test_gate1_unauthenticated_requests_return_401`, `test_gate2_rfc9728_protected_resource_metadata`, `test_gate3_citizen_oauth_flow_and_ping`, `test_gate4_officer_oauth_flow_and_ping`, `test_gate5_scope_isolation_citizen_cannot_access_officer`, `test_gate6_scope_isolation_officer_cannot_access_citizen`, `test_gate7_audience_mismatch_rejected`, `test_gate8_revoked_session_rejected`). |
 | **Phase 3** | Citizen MCP Server | **COMPLETED** | Git commit `6cf03c5`. All 5 Phase 3 tests passed (`test_gate1_scheme_info`, `test_gate2_check_eligibility`, `test_gate3_save_details_and_bank_masking`, `test_gate4_document_upload_link`, `test_gate5_full_submission_and_lifecycle`). |
 | **Phase 4** | Officer MCP Server | **COMPLETED** | Git commit `e60cb0b`. All 5 Phase 4 tests passed (`test_gate1_officer_my_queue`, `test_gate2_officer_overdue_summary`, `test_gate3_officer_view_case_with_flags`, `test_gate4_officer_approve_case`, `test_gate5_officer_reject_case_requires_reason`). |
-| **Phase 5** | Personas & Evals Suite | **COMPLETED** | Git commit pending. 18 Personas (C1–C12, O1–O6) passed 100% in `tests/test_phase5.py` with multi-turn conversations and PostgreSQL applications & audit_log verification. |
-| **Phase 6** | Public Eval Dashboard | **COMPLETED** | Git commit pending. All 2 Phase 6 tests passed (`test_eval_dashboard_html_page`, `test_eval_dashboard_json_api`). Public `/eval-dashboard` and `/eval-dashboard/data` live. |
-| **Phase 7** | Deployment & HTTPS | **IN PROGRESS** | Production Docker Compose, Caddy reverse proxy, TLS configuration. |
-| **Phase 8** | Design Note & Loom Script | PENDING | 1-page `DESIGN.md` finalization and 3-minute video recording script. |
+| **Phase 5** | Personas & Evals Suite | **COMPLETED** | Git commit `4bfb5e0`. 18 Personas (C1–C12, O1–O6) passed 100% in `tests/test_phase5.py` with multi-turn conversations and PostgreSQL applications & audit_log verification. |
+| **Phase 6** | Public Eval Dashboard | **COMPLETED** | Git commit `b5c3c8b`. All 2 Phase 6 tests passed (`test_eval_dashboard_html_page`, `test_eval_dashboard_json_api`). Public `/eval-dashboard` and `/eval-dashboard/data` live. |
+| **Phase 7** | Deployment & HTTPS | **COMPLETED** | Git commit pending. `docker-compose.prod.yml`, `Caddyfile`, `Dockerfile.mcp`, all 3 tests in `tests/test_phase7.py` passed. |
+| **Phase 8** | Design Note & Loom Script | **IN PROGRESS** | 1-page `DESIGN.md` finalization, 3-minute Loom video recording script, GitHub push. |
 
 ---
 
@@ -74,6 +76,10 @@ If the workstation just booted back up after a power cut:
 ## 5. Git Commit Log
 
 ```
+19be4bb docs: update PROJECT_STATE for Phase 5 & 6 completion
+b5c3c8b feat(phase-6): public eval dashboard with transcripts and database verification
+4bfb5e0 feat(phase-5): 18 persona evals suite with automated database verification
+632fa21 docs: update PROJECT_STATE for Phase 4 completion
 e60cb0b feat(phase-4): officer MCP server with case triage and decisions
 3892430 docs: update PROJECT_STATE for Phase 3 completion
 6cf03c5 feat(phase-3): citizen MCP server with portal integration
