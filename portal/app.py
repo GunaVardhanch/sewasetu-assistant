@@ -191,10 +191,16 @@ def validate_application(data, doc_path):
     # Marital status validation
     if not cleaned["marital_status"]:
         errors.append("marital status is required")
-    elif cleaned["marital_status"].capitalize() not in MARITAL_STATUSES:
-        errors.append("marital status must be one of: " + ", ".join(MARITAL_STATUSES))
     else:
-        cleaned["marital_status"] = cleaned["marital_status"].capitalize()
+        ms = cleaned["marital_status"].capitalize()
+        if ms == "Widow":
+            ms = "Widowed"
+        elif ms == "Single":
+            ms = "Unmarried"
+        if ms not in MARITAL_STATUSES:
+            errors.append("marital status must be one of: " + ", ".join(MARITAL_STATUSES))
+        else:
+            cleaned["marital_status"] = ms
 
     # Bank account validation
     if not cleaned["bank_account"]:

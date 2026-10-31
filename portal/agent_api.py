@@ -138,6 +138,7 @@ def session_check():
 # Citizen Endpoints
 # ---------------------------------------------------------------------------
 
+@agent_api.get("/scheme_info")
 @agent_api.get("/citizen/scheme_info")
 def citizen_scheme_info():
     hours = portal.deadline_remaining()
@@ -278,6 +279,10 @@ def citizen_draft_save():
                 val = val.capitalize()
             elif k == "marital_status":
                 val = val.capitalize()
+                if val == "Widow":
+                    val = "Widowed"
+                elif val == "Single":
+                    val = "Unmarried"
             current_data[k] = val
 
     cur.execute(

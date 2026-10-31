@@ -30,19 +30,16 @@ If the workstation just booted back up after a power cut:
 
 ## 2. Current Work Item
 
-- **Current Stage**: **Phase 3: Citizen MCP Server Implementation**
+- **Current Stage**: **Phase 4: Block Officer MCP Server Implementation**
 - **In-Progress Task**:
-  1. Implement all 8 Citizen tools in `mcp_citizen/server.py`:
-     - `scheme_info`: Returns scheme overview, eligibility criteria, required documents, deadline.
-     - `check_eligibility`: Takes age/dob, block, returns clear eligibility status.
-     - `get_my_application`: Retrieves citizen's current application with masked bank account (`********1234`), status, timeline.
-     - `save_details`: Saves/updates draft application in `agent_drafts` table via `/internal/v1/citizen/draft/save`.
-     - `get_document_upload_link`: Generates single-use 30-minute upload URL (`/upload/<token>`) for documents.
-     - `submit_application`: Finalizes and submits application via `/internal/v1/citizen/submit` with advisory lock and single source of truth validation parity.
-     - `withdraw_application`: Allows citizen to cancel/withdraw pending application.
-     - `sign_out`: Terminates active OAuth grant via `/internal/v1/citizen/session_end`.
-  2. Implement tests in `tests/test_phase3.py` verifying full citizen flow, bank masking, validation error handling, upload link generation, draft saving, submission, and withdrawal.
-  3. Run test suite, verify gates, commit `feat(phase-3): citizen MCP server with portal integration`.
+  1. Implement all 5 Block Officer tools in `mcp_officer/server.py`:
+     - `my_queue`: Retrieves pending applications for the officer's assigned block with SLA badges and risk flags.
+     - `overdue_summary`: Highlights applications approaching or exceeding the 15-day deemed approval limit.
+     - `view_case`: Loads the comprehensive case dossier for an application, including duplicate bank account warnings and seeded anomaly flags.
+     - `approve_case`: Records an officer approval with named audit logging in portal.
+     - `reject_case`: Records an officer rejection with mandatory justification and audit logging.
+  2. Implement tests in `tests/test_phase4.py` verifying queue retrieval, SLA risk sorting, case dossier viewing with anomaly flags, idempotent decision making, and audit attribution.
+  3. Run test suite, verify gates, commit `feat(phase-4): officer MCP server with case triage and decisions`.
 
 ---
 
@@ -53,8 +50,8 @@ If the workstation just booted back up after a power cut:
 | **Phase 0** | Handout Import & Baseline Setup | **COMPLETED** | Git commit `4afb38b`. All 4 baseline tests passed (`test_public_pages`, `test_admin_login`, `test_gateway_otp`, `test_full_web_application_submission`). Database seeded with 100k rows. |
 | **Phase 1** | Portal Hardening & Internal API | **COMPLETED** | Git commit `2a3fb89`. All 7 Phase 1 tests passed (`test_scheme_info`, `test_eligibility_age_check`, `test_validation_parity_between_web_and_api`, `test_concurrency_parallel_submits`, `test_bi_directional_visibility`, `test_officer_decide_idempotence_and_audit`, `test_session_check_and_revocation`). |
 | **Phase 2** | Shared Auth & MCP Skeletons | **COMPLETED** | Git commit `5dbca25`. All 8 Phase 2 tests passed (`test_gate1_unauthenticated_requests_return_401`, `test_gate2_rfc9728_protected_resource_metadata`, `test_gate3_citizen_oauth_flow_and_ping`, `test_gate4_officer_oauth_flow_and_ping`, `test_gate5_scope_isolation_citizen_cannot_access_officer`, `test_gate6_scope_isolation_officer_cannot_access_citizen`, `test_gate7_audience_mismatch_rejected`, `test_gate8_revoked_session_rejected`). |
-| **Phase 3** | Citizen MCP Server | **IN PROGRESS** | Ready to implement 8 core citizen tools, bank masking, turn-capped compact replies. |
-| **Phase 4** | Officer MCP Server | PENDING | To implement `mcp_officer/server.py` with queue triage, dossier view with flags, named decisions. |
+| **Phase 3** | Citizen MCP Server | **COMPLETED** | Git commit `to_be_committed`. All 5 Phase 3 tests passed (`test_gate1_scheme_info`, `test_gate2_check_eligibility`, `test_gate3_save_details_and_bank_masking`, `test_gate4_document_upload_link`, `test_gate5_full_submission_and_lifecycle`). |
+| **Phase 4** | Officer MCP Server | **IN PROGRESS** | Ready to implement 5 officer tools (my_queue, overdue_summary, view_case, approve_case, reject_case). |
 | **Phase 5** | Personas & Evals Suite | PENDING | 12 Citizen personas (C1-C12) & 6 Officer personas (O1-O6) in `evals/`. |
 | **Phase 6** | Public Eval Dashboard | PENDING | Static/JSON dashboard at `/eval-dashboard` with transcripts, checks, and before/after fixes. |
 | **Phase 7** | Deployment & HTTPS | PENDING | Caddy reverse proxy, TLS, live VM deployment. |
