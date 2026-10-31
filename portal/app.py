@@ -347,6 +347,80 @@ def about():
     return render_template("about.html")
 
 
+@app.route("/.well-known/oauth-protected-resource", methods=["GET"])
+@app.route("/.well-known/oauth-protected-resource/<path:subpath>", methods=["GET"])
+def root_protected_resource_metadata(subpath=""):
+    resource_url = ISSUER + ("/mcp/" + subpath if subpath else "/mcp/citizen")
+    scope = "officer" if "officer" in subpath else "citizen"
+    return jsonify({
+        "resource": resource_url,
+        "authorization_servers": [ISSUER],
+        "scopes_supported": [scope],
+        "bearer_methods_supported": ["header"],
+        "resource_documentation": ISSUER + "/about"
+    })
+
+
+@app.route("/mcp/citizen", methods=["GET", "POST", "OPTIONS"])
+def citizen_mcp_route():
+    citizen_backend = os.environ.get("CITIZEN_BACKEND_URL", "http://mcp-citizen:8001/mcp/citizen")
+    try:
+        r = requests.request(
+            method=request.method,
+            url=citizen_backend,
+            headers={k: v for k, v in request.headers if k.lower() != 'host'},
+            data=request.get_data(),
+            params=request.args,
+            timeout=5
+        )
+        return (r.content, r.status_code, dict(r.headers))
+    except Exception:
+        if request.method == "OPTIONS":
+            return "", 200, {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+            }
+        meta_url = ISSUER + "/.well-known/oauth-protected-resource/citizen"
+        return jsonify({
+            "error": "invalid_token",
+            "error_description": "Authentication required. Scopes: citizen"
+        }), 401, {
+            "WWW-Authenticate": f'Bearer realm="{ISSUER}", resource="{ISSUER}/mcp/citizen", resource_metadata="{meta_url}"',
+            "Access-Control-Allow-Origin": "*"
+        }
+
+
+@app.route("/mcp/officer", methods=["GET", "POST", "OPTIONS"])
+def officer_mcp_route():
+    officer_backend = os.environ.get("OFFICER_BACKEND_URL", "http://mcp-officer:8002/mcp/officer")
+    try:
+        r = requests.request(
+            method=request.method,
+            url=officer_backend,
+            headers={k: v for k, v in request.headers if k.lower() != 'host'},
+            data=request.get_data(),
+            params=request.args,
+            timeout=5
+        )
+        return (r.content, r.status_code, dict(r.headers))
+    except Exception:
+        if request.method == "OPTIONS":
+            return "", 200, {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+            }
+        meta_url = ISSUER + "/.well-known/oauth-protected-resource/officer"
+        return jsonify({
+            "error": "invalid_token",
+            "error_description": "Authentication required. Scopes: officer"
+        }), 401, {
+            "WWW-Authenticate": f'Bearer realm="{ISSUER}", resource="{ISSUER}/mcp/officer", resource_metadata="{meta_url}"',
+            "Access-Control-Allow-Origin": "*"
+        }
+
+
 @app.route("/eval-dashboard")
 def eval_dashboard():
     eval_file = os.path.join(BASE_DIR, "eval_results.json")
