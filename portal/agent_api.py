@@ -884,3 +884,118 @@ def officer_decide():
         "reason": reason,
         "message": f"Application {app_no} has been {decision} by Block Officer {officer}."
     })
+
+
+@agent_api.get("/eval/inspect")
+def eval_inspect():
+    """Internal database state inspector for persona evaluation checks."""
+    try:
+        mobile = request.args.get("mobile")
+        app_no = request.args.get("application_no")
+        app_id = request.args.get("application_id")
+
+        conn = portal.get_db()
+        cur = conn.cursor()
+
+        app_data = None
+        audit_trail = []
+        draft_data = None
+
+        # 1. Query Application
+        app_query = """
+            SELECT id, application_no, applicant_name, mobile, dob,
+                   gender, marital_status, husband_name, block, village, bank_account,
+                   ifsc, status, submitted_at, decided_at, decided_by, doc_path
+            FROM applications
+        """
+        params = []
+        if app_id:
+            app_query += " WHERE id = %s"
+            params.append(int(app_id))
+        elif app_no:
+            app_query += " WHERE application_no = %s"
+            params.append(str(app_no))
+        elif mobile:
+            app_query += " WHERE mobile = %s ORDER BY id DESC LIMIT 1"
+            params.append(str(mobile))
+        else:
+            app_query = None
+
+        target_app_id = None
+        if app_query:
+            cur.execute(app_query, tuple(params))
+            row = cur.fetchone()
+            if row:
+                target_app_id = row[0]
+                dob_val = row[4]
+                sub_at = row[13]
+                age_at_sub = (sub_at.year - dob_val.year - ((sub_at.month, sub_at.day) < (dob_val.month, dob_val.day))) if (dob_val and sub_at) else None
+                doc_path = row[16]
+                doc_exists = bool(doc_path and os.path.exists(doc_path))
+                app_data = {
+                    "id": row[0],
+                    "application_no": row[1],
+                    "applicant_name": row[2],
+                    "mobile": row[3],
+                    "dob": dob_val.strftime("%d/%m/%Y") if dob_val else None,
+                    "age_at_submission": age_at_sub,
+                    "gender": row[5],
+                    "marital_status": row[6],
+                    "husband_name": row[7],
+                    "block": row[8],
+                    "village": row[9],
+                    "bank_account": row[10],
+                    "ifsc": row[11],
+                    "status": row[12],
+                    "submitted_at": sub_at.strftime("%Y-%m-%d %H:%M:%S") if sub_at else None,
+                    "decided_at": row[14].strftime("%Y-%m-%d %H:%M:%S") if row[14] else None,
+                    "decided_by": row[15],
+                    "has_document_file": doc_exists,
+                }
+
+        # 2. Query Audit Trail if application exists
+        if target_app_id:
+            cur.execute(
+                "SELECT id, action, actor, at, note FROM audit_log WHERE application_id = %s ORDER BY id ASC",
+                (target_app_id,)
+            )
+            for a_row in cur.fetchall():
+                audit_trail.append({
+                    "id": a_row[0],
+                    "action": a_row[1],
+                    "actor": a_row[2],
+                    "timestamp": a_row[3].strftime("%Y-%m-%d %H:%M:%S") if a_row[3] else None,
+                    "note": a_row[4]
+                })
+
+        # 3. Query Draft if mobile provided or from application
+        check_mobile = mobile or (app_data["mobile"] if app_data else None)
+        if check_mobile:
+            cur.execute("SELECT data, doc_path, updated_at FROM agent_drafts WHERE mobile = %s", (check_mobile,))
+            d_row = cur.fetchone()
+            if d_row:
+                d_json = d_row[0] if isinstance(d_row[0], dict) else json.loads(d_row[0] or "{}")
+                d_path = d_row[1]
+                draft_data = {
+                    "data": d_json,
+                    "has_document": bool(d_path and os.path.exists(d_path)),
+                    "updated_at": d_row[2].strftime("%Y-%m-%d %H:%M:%S") if d_row[2] else None
+                }
+
+        cur.close(); conn.close()
+
+        return jsonify({
+            "status": "success",
+            "application": app_data,
+            "audit_trail": audit_trail,
+            "draft": draft_data
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "application": None,
+            "audit_trail": [],
+            "draft": None
+        }), 500
+

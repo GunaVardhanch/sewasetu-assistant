@@ -267,7 +267,8 @@ def test_gate4_officer_approve_case(officer_session):
 
     # 2. View case to verify status and audit row
     r_view = client.call_tool("view_case", {"application_no": app_no})
-    assert r_view.get("status") == "APPROVED"
+    assert r_view.get("status") == "success"
+    assert r_view.get("application_status") == "APPROVED"
     assert r_view.get("is_decidable") is False
     audit_actors = [a.get("actor") for a in r_view.get("audit_trail", [])]
     assert "officer:anjali" in audit_actors
@@ -298,7 +299,8 @@ def test_gate5_officer_reject_case_requires_reason(officer_session):
 
     # 3. View case to verify rejection and audit note
     r_view = client.call_tool("view_case", {"application_no": app_no})
-    assert r_view.get("status") == "REJECTED"
+    assert r_view.get("status") == "success"
+    assert r_view.get("application_status") == "REJECTED"
     audit = r_view.get("audit_trail", [])
     reject_notes = [a.get("note") for a in audit if a.get("action") == "REJECTED"]
     assert any(justification in (n or "") for n in reject_notes)

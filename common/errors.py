@@ -25,6 +25,11 @@ def format_tool_success(message: str, next_step: str, data: Optional[Dict[str, A
         "next_step": next_step
     }
     if data:
-        out.update(data)
+        for k, v in data.items():
+            if k == "status" and v != "success":
+                out["application_status"] = v
+            else:
+                out[k] = v
+        out["status"] = "success"
     return out
 
