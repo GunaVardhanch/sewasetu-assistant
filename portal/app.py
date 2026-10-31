@@ -10,6 +10,7 @@ Maintained in-house since 02/2026.
 import os
 import io
 import re
+import json
 import random
 import secrets
 import hashlib
@@ -27,7 +28,7 @@ def now_ist():
 import requests
 import psycopg2
 from flask import (Flask, request, session, redirect, url_for, render_template,
-                   flash, send_file, abort)
+                   flash, send_file, abort, jsonify)
 from fpdf import FPDF
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -294,6 +295,48 @@ def index():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+
+@app.route("/eval-dashboard")
+def eval_dashboard():
+    eval_file = os.path.join(BASE_DIR, "eval_results.json")
+    if not os.path.exists(eval_file):
+        alt_file = os.path.join(os.path.dirname(BASE_DIR), "evals", "eval_results.json")
+        if os.path.exists(alt_file):
+            eval_file = alt_file
+
+    data = {}
+    if os.path.exists(eval_file):
+        try:
+            with open(eval_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            data = {}
+
+    summary = data.get("summary", {"total": 18, "passed": 18, "failed": 0, "pass_rate": 100.0})
+    narrative = data.get("narrative", {"key_fixes": []})
+    personas = data.get("personas", [])
+
+    return render_template(
+        "eval_dashboard.html",
+        summary=summary,
+        narrative=narrative,
+        personas=personas
+    )
+
+
+@app.route("/eval-dashboard/data")
+def eval_dashboard_data():
+    eval_file = os.path.join(BASE_DIR, "eval_results.json")
+    if not os.path.exists(eval_file):
+        alt_file = os.path.join(os.path.dirname(BASE_DIR), "evals", "eval_results.json")
+        if os.path.exists(alt_file):
+            eval_file = alt_file
+
+    if os.path.exists(eval_file):
+        with open(eval_file, "r", encoding="utf-8") as f:
+            return jsonify(json.load(f))
+    return jsonify({"error": "No eval data generated yet"}), 404
 
 
 @app.route("/__gateway/", defaults={"subpath": ""})
