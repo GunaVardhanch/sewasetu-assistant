@@ -19,7 +19,7 @@ If the workstation just booted back up after a power cut:
    ```powershell
    wsl.exe -d Ubuntu-22.04 -- bash -c "cd /mnt/c/Users/Administrator/SevaSethu/sewasetu-assistant && sudo ADMIN_PASSWORD=dev docker compose up -d"
    ```
-3. Run the baseline verification test to confirm portal health:
+3. Run baseline verification test to confirm portal health:
    ```powershell
    cd C:\Users\Administrator\SevaSethu\sewasetu-assistant
    python -m pytest -v tests/test_baseline.py
@@ -30,16 +30,12 @@ If the workstation just booted back up after a power cut:
 
 ## 2. Current Work Item
 
-- **Current Stage**: **Phase 4: Block Officer MCP Server Implementation**
+- **Current Stage**: **Phase 5: Personas & Evals Suite (C1–C12, O1–O6)**
 - **In-Progress Task**:
-  1. Implement all 5 Block Officer tools in `mcp_officer/server.py`:
-     - `my_queue`: Retrieves pending applications for the officer's assigned block with SLA badges and risk flags.
-     - `overdue_summary`: Highlights applications approaching or exceeding the 15-day deemed approval limit.
-     - `view_case`: Loads the comprehensive case dossier for an application, including duplicate bank account warnings and seeded anomaly flags.
-     - `approve_case`: Records an officer approval with named audit logging in portal.
-     - `reject_case`: Records an officer rejection with mandatory justification and audit logging.
-  2. Implement tests in `tests/test_phase4.py` verifying queue retrieval, SLA risk sorting, case dossier viewing with anomaly flags, idempotent decision making, and audit attribution.
-  3. Run test suite, verify gates, commit `feat(phase-4): officer MCP server with case triage and decisions`.
+  1. Create directory `evals/personas/` containing 12 citizen personas (`C1`–`C12`) and 6 officer personas (`O1`–`O6`) covering diverse demographics, edge cases, SLA escalations, and fraud/risk detection.
+  2. Implement `evals/run_evals.py` and `evals/checks.py` providing automated end-to-end multi-turn conversation execution against citizen and officer MCP servers.
+  3. Verify post-eval database state assertions in PostgreSQL (applications table, audit_log, and agent_drafts).
+  4. Generate before/after transcript artifacts for the eval dashboard.
 
 ---
 
@@ -51,8 +47,8 @@ If the workstation just booted back up after a power cut:
 | **Phase 1** | Portal Hardening & Internal API | **COMPLETED** | Git commit `2a3fb89`. All 7 Phase 1 tests passed (`test_scheme_info`, `test_eligibility_age_check`, `test_validation_parity_between_web_and_api`, `test_concurrency_parallel_submits`, `test_bi_directional_visibility`, `test_officer_decide_idempotence_and_audit`, `test_session_check_and_revocation`). |
 | **Phase 2** | Shared Auth & MCP Skeletons | **COMPLETED** | Git commit `5dbca25`. All 8 Phase 2 tests passed (`test_gate1_unauthenticated_requests_return_401`, `test_gate2_rfc9728_protected_resource_metadata`, `test_gate3_citizen_oauth_flow_and_ping`, `test_gate4_officer_oauth_flow_and_ping`, `test_gate5_scope_isolation_citizen_cannot_access_officer`, `test_gate6_scope_isolation_officer_cannot_access_citizen`, `test_gate7_audience_mismatch_rejected`, `test_gate8_revoked_session_rejected`). |
 | **Phase 3** | Citizen MCP Server | **COMPLETED** | Git commit `6cf03c5`. All 5 Phase 3 tests passed (`test_gate1_scheme_info`, `test_gate2_check_eligibility`, `test_gate3_save_details_and_bank_masking`, `test_gate4_document_upload_link`, `test_gate5_full_submission_and_lifecycle`). |
-| **Phase 4** | Officer MCP Server | **IN PROGRESS** | Ready to implement 5 officer tools (my_queue, overdue_summary, view_case, approve_case, reject_case). |
-| **Phase 5** | Personas & Evals Suite | PENDING | 12 Citizen personas (C1-C12) & 6 Officer personas (O1-O6) in `evals/`. |
+| **Phase 4** | Officer MCP Server | **COMPLETED** | Git commit pending. All 5 Phase 4 tests passed (`test_gate1_officer_my_queue`, `test_gate2_officer_overdue_summary`, `test_gate3_officer_view_case_with_flags`, `test_gate4_officer_approve_case`, `test_gate5_officer_reject_case_requires_reason`). |
+| **Phase 5** | Personas & Evals Suite | **IN PROGRESS** | 12 Citizen personas (C1-C12) & 6 Officer personas (O1-O6) in `evals/`. |
 | **Phase 6** | Public Eval Dashboard | PENDING | Static/JSON dashboard at `/eval-dashboard` with transcripts, checks, and before/after fixes. |
 | **Phase 7** | Deployment & HTTPS | PENDING | Caddy reverse proxy, TLS, live VM deployment. |
 | **Phase 8** | Design Note & Loom Script | PENDING | 1-page `DESIGN.md` finalization and 3-minute video recording script. |
@@ -73,6 +69,7 @@ If the workstation just booted back up after a power cut:
 ## 5. Git Commit Log
 
 ```
+3892430 docs: update PROJECT_STATE for Phase 3 completion
 6cf03c5 feat(phase-3): citizen MCP server with portal integration
 f25fbc8 docs: update PROJECT_STATE for Phase 2 completion
 5dbca25 feat(phase-2): shared auth, MCP skeletons, and RFC 9728 metadata
@@ -91,4 +88,5 @@ f25fbc8 docs: update PROJECT_STATE for Phase 2 completion
 | `db` | `db:5432` | Internal only | PostgreSQL 15 with `sewasetu` database (100k rows seeded) |
 | `smsgw` | `smsgw:8025` | Internal only (`/__gateway/` proxied) | Telecom carrier simulation with 1-4s delivery latency |
 | `scheduler` | internal | Internal only | Nightly RTPS deemed-approval cron job |
-
+| `mcp-citizen` | `mcp-citizen:8001` | `localhost:8001` | Citizen MCP Server (/mcp/citizen, scope: citizen) |
+| `mcp-officer` | `mcp-officer:8002` | `localhost:8002` | Officer MCP Server (/mcp/officer, scope: officer) |
