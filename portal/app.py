@@ -414,12 +414,13 @@ def verify():
     mobile = session.get("apply_mobile")
     if not mobile:
         return redirect(url_for("apply"))
+    totp = get_totp_for_mobile(mobile)
+    demo_otp = totp.now()
     if request.method == "POST":
         raw_code = request.form.get("otp", "")
         code = re.sub(r"\D", "", raw_code)
 
         # 1. Primary verification via PyOTP RFC 6238 TOTP
-        totp = get_totp_for_mobile(mobile)
         is_valid = bool(code and totp.verify(code, valid_window=1))
 
         # 2. Database backup verification
@@ -448,7 +449,7 @@ def verify():
         cur.close()
         conn.close()
         flash("Invalid OTP. Please check the code received or request a new OTP.")
-    return render_template("verify.html", mobile=mobile)
+    return render_template("verify.html", mobile=mobile, demo_otp=demo_otp)
 
 
 @app.route("/form/<int:step>", methods=["GET", "POST"])

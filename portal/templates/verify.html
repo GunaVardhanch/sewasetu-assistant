@@ -2,10 +2,15 @@
 {% block content %}
 <div class="steps"><b>Step 1 of 6:</b> Mobile Verification</div>
 <h2>Enter OTP</h2>
-<p class="note">An OTP has been sent to {{ mobile }}.</p>
+<p class="note">An OTP has been generated for <b>{{ mobile }}</b>.</p>
+<div style="background:#e8f0fe; border:1px solid #c2dbfe; border-radius:6px; padding:12px 16px; margin-bottom:16px; max-width:400px;">
+  <span style="font-size:14px; color:#1a3c6e;">Your Verification Code:</span><br>
+  <span style="font-size:26px; font-weight:bold; letter-spacing:4px; color:#1a3c6e;">{{ demo_otp }}</span>
+  <div style="font-size:12px; color:#555; margin-top:4px;">(Generated via PyOTP &middot; Valid for 5 minutes)</div>
+</div>
 <form method="post">
-  <label>OTP</label>
-  <input type="text" name="otp" maxlength="6" style="max-width:160px">
-  <p><button class="btn" type="submit">Verify</button></p>
+  <label>Enter 6-digit OTP</label>
+  <input type="text" name="otp" maxlength="6" value="{{ demo_otp }}" style="max-width:180px; font-size:18px; letter-spacing:2px; font-weight:bold;">
+  <p><button class="btn" type="submit">Verify &amp; Continue</button></p>
 </form>
 {% endblock %}

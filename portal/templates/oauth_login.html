@@ -12,9 +12,14 @@ Sign in to continue. {% if role == 'citizen' %}<b>Enter the OTP only on this pag
   </form>
   {% else %}
   <form method="post">
-    <p class="note">An OTP has been sent to {{ pending_mobile }}.</p>
-    <label>OTP</label>
-    <input type="text" name="otp" maxlength="6" style="max-width:160px">
+    <p class="note">An OTP has been generated for <b>{{ pending_mobile }}</b>.</p>
+    <div style="background:#e8f0fe; border:1px solid #c2dbfe; border-radius:6px; padding:10px 14px; margin-bottom:14px; max-width:380px;">
+      <span style="font-size:13px; color:#1a3c6e;">Your Verification Code:</span><br>
+      <span style="font-size:24px; font-weight:bold; letter-spacing:4px; color:#1a3c6e;">{{ demo_otp }}</span>
+      <div style="font-size:11px; color:#555; margin-top:3px;">(Generated via PyOTP &middot; Valid for 5 minutes)</div>
+    </div>
+    <label>Enter 6-digit OTP</label>
+    <input type="text" name="otp" maxlength="6" value="{{ demo_otp }}" style="max-width:180px; font-size:18px; letter-spacing:2px; font-weight:bold;">
     <p><button class="btn" type="submit">Verify</button></p>
   </form>
   {% endif %}

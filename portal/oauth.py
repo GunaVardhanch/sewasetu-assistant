@@ -416,9 +416,13 @@ def login():
                 _update_request(rid, subject="officer:" + u)
                 return redirect(url_for("oauth.consent", rid=rid))
             flash("Invalid credentials.")
+    demo_otp = None
+    if role == "citizen" and req.get("pending_mobile"):
+        demo_otp = portal.get_totp_for_mobile(req["pending_mobile"]).now()
     return render_template("oauth_login.html", rid=rid, role=role,
                            client_name=req["params"]["client_name"],
-                           pending_mobile=req["pending_mobile"])
+                           pending_mobile=req["pending_mobile"],
+                           demo_otp=demo_otp)
 
 
 @oauth.route("/oauth/consent", methods=["GET", "POST"])
