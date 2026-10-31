@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir \
+    "mcp>=1.0.0" \
+    "uvicorn>=0.30.0" \
+    "requests>=2.31.0" \
+    "pyjwt[crypto]>=2.8.0" \
+    "starlette>=0.38.0" \
+    "python-dotenv>=1.0.0"
+
+COPY common/ ./common/
+COPY mcp_citizen/ ./mcp_citizen/
+COPY mcp_officer/ ./mcp_officer/
+
+ENV PYTHONUNBUFFERED=1

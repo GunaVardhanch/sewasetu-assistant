@@ -1,0 +1,47 @@
+# Caddyfile for Sewa Setu Production Reverse Proxy & TLS Termination
+# Unifies Portal (8000), Citizen MCP (8001), Officer MCP (8002), and SMS Gateway (/__gateway/)
+
+{
+    admin off
+}
+
+:80, :443 {
+    # Citizen MCP Server (Streamable HTTP, RFC 8707, RFC 9728)
+    handle /mcp/citizen* {
+        reverse_proxy mcp-citizen:8001 {
+            flush_interval -1
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    # Block Officer MCP Server (Streamable HTTP, RFC 8707, RFC 9728)
+    handle /mcp/officer* {
+        reverse_proxy mcp-officer:8002 {
+            flush_interval -1
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    # RFC 9728 Protected Resource Metadata Fallback at root
+    handle /.well-known/oauth-protected-resource {
+        reverse_proxy app:8000
+    }
+
+    # Interactive Evaluation Dashboard
+    handle /eval-dashboard* {
+        reverse_proxy app:8000
+    }
+
+    # Portal Core, Admin, Status, OAuth 2.1 AS, Document Upload, and Proxied Gateway
+    handle {
+        reverse_proxy app:8000 {
+            header_up Host {host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+}

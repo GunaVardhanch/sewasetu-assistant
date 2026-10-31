@@ -1,0 +1,101 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: sewasetu
+      POSTGRES_USER: sewasetu
+      POSTGRES_PASSWORD: sewasetu123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./portal/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./seed/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    restart: unless-stopped
+
+  app:
+    build: ./portal
+    environment:
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-dev}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key-2026}
+      SCHEME_DEADLINE: ${SCHEME_DEADLINE:-2026-12-31 23:59}
+      AGENT_ENABLED_BLOCKS: ${AGENT_ENABLED_BLOCKS:-Sonari,Rajapara,Dhemaji Pathar,Borgaon,Namti,Khelua}
+    depends_on:
+      - db
+      - smsgw
+    volumes:
+      - ./portal:/app
+      - uploads:/var/sewasetu/uploads
+      - applogs:/var/log/sewasetu
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  scheduler:
+    build: ./portal
+    command: ["sh", "-c", "until python /app/scripts/deemed_approval.py; do sleep 5; done; exec cron -f"]
+    depends_on:
+      - db
+    volumes:
+      - applogs:/var/log/sewasetu
+    restart: unless-stopped
+
+  smsgw:
+    build: ./smsgw
+    expose:
+      - "8025"
+    restart: unless-stopped
+
+  mcp-citizen:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    command: ["python", "-m", "uvicorn", "mcp_citizen.server:app", "--host", "0.0.0.0", "--port", "8001"]
+    environment:
+      PORTAL_INTERNAL_URL: http://app:8000
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost}
+      CITIZEN_RESOURCE_URL: ${PUBLIC_BASE_URL:-http://localhost}/mcp/citizen
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key-2026}
+    depends_on:
+      - app
+    expose:
+      - "8001"
+    restart: unless-stopped
+
+  mcp-officer:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    command: ["python", "-m", "uvicorn", "mcp_officer.server:app", "--host", "0.0.0.0", "--port", "8002"]
+    environment:
+      PORTAL_INTERNAL_URL: http://app:8000
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost}
+      OFFICER_RESOURCE_URL: ${PUBLIC_BASE_URL:-http://localhost}/mcp/officer
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key-2026}
+    depends_on:
+      - app
+    expose:
+      - "8002"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+      - mcp-citizen
+      - mcp-officer
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  uploads:
+  applogs:
+  caddy_data:
+  caddy_config:
