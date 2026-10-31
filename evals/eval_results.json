@@ -1,5 +1,5 @@
 {
-  "run_timestamp": "2026-10-31T16:23:26.934778",
+  "run_timestamp": "2026-10-31T18:23:35.151954",
   "summary": {
     "total": 18,
     "passed": 18,
@@ -7,7 +7,7 @@
     "pass_rate": 100.0,
     "citizen_count": 12,
     "officer_count": 6,
-    "duration_seconds": 206.05
+    "duration_seconds": 196.8
   },
   "narrative": {
     "title": "What the Personas Taught Us & What We Fixed",
@@ -45,11 +45,11 @@
       "role": "citizen",
       "name": "Bhaben Hazarika",
       "category": "Standard Clean Submission",
-      "mobile": "9853650001",
+      "mobile": "9856430001",
       "scenario": "Bhaben is a 68-year-old retired paddy farmer from Namti Ali village in Sonari block. He provides all clean, complete details upfront and uploads a valid age certificate. The assistant should check eligibility, save details, provide an upload link, and submit his application.",
       "voice": "Rural elder from Charaideo district; polite, respectful, speaks Assamese-influenced English.",
       "status": "PASS",
-      "duration_ms": 13921,
+      "duration_ms": 14385,
       "turns": [
         {
           "turn": 1,
@@ -106,9 +106,9 @@
             "status": "success",
             "message": "Secure document upload link generated (valid for 30 minutes).",
             "next_step": "Open the upload link on your mobile or computer to upload your age proof (PDF, JPG, or PNG, max 5 MB).",
-            "upload_url": "http://localhost:8000/upload/dtI-2NnSfoKwY-2j_Ducwqys1uqR-h-r_GAdSs6GfQQ",
+            "upload_url": "http://localhost:8000/upload/-dv89JeUtn5yzHiAbu-S9InbegAn7B1LjsxG0JVFVQI",
             "expires_in_minutes": 30,
-            "expires_at": "2026-10-31T11:20:13"
+            "expires_at": "2026-10-31T13:20:30"
           }
         },
         {
@@ -118,9 +118,9 @@
           "tool_arguments": {},
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26599566 submitted successfully! Status: PENDING.",
+            "message": "Application SSP26639279 submitted successfully! Status: PENDING.",
             "next_step": "Your application is now in queue for Block Officer review. Track status anytime using get_my_application.",
-            "application_no": "SSP26599566",
+            "application_no": "SSP26639279",
             "applicant_name": "Bhaben Hazarika",
             "block": "Sonari",
             "application_status": "PENDING"
@@ -144,11 +144,11 @@
       "role": "citizen",
       "name": "Ananta Gogoi",
       "category": "Underage Applicant (Age 58)",
-      "mobile": "9853650002",
+      "mobile": "9856430002",
       "scenario": "Ananta is 58 years old and struggling with physical labor. He inquires if he can get the pension early. The assistant must accurately calculate his age (58), explain the statutory minimum age of 60 under the Purvanchal Pension Rules, give the exact date when he turns 60 (14/08/2028), and NOT submit an application.",
       "voice": "Anxious daily wage laborer wanting retirement relief before turning 60.",
       "status": "PASS",
-      "duration_ms": 7524,
+      "duration_ms": 7832,
       "turns": [
         {
           "turn": 1,
@@ -179,11 +179,11 @@
       "role": "citizen",
       "name": "Kamala Devi",
       "category": "Widow with Prompted Husband Name",
-      "mobile": "9853650003",
+      "mobile": "9856430003",
       "scenario": "Kamala is a 72-year-old widow. She initially saves her details saying marital status 'Widow' but forgets her husband's name. The assistant identifies the missing husband name requirement, prompts her gently, normalizes 'Widow' to 'Widowed' in portal records, accepts the husband name, and submits after document upload.",
       "voice": "Hesitant elderly widow; refers to marital status as 'Widow'; omits late husband's name on initial turn.",
       "status": "PASS",
-      "duration_ms": 17815,
+      "duration_ms": 15322,
       "turns": [
         {
           "turn": 1,
@@ -253,9 +253,9 @@
           "tool_arguments": {},
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26483314 submitted successfully! Status: PENDING.",
+            "message": "Application SSP26349852 submitted successfully! Status: PENDING.",
             "next_step": "Your application is now in queue for Block Officer review. Track status anytime using get_my_application.",
-            "application_no": "SSP26483314",
+            "application_no": "SSP26349852",
             "applicant_name": "Kamala Devi",
             "block": "Rajapara",
             "application_status": "PENDING"
@@ -276,11 +276,11 @@
       "role": "citizen",
       "name": "Dhiren Borah",
       "category": "Invalid IFSC Error & Self-Correction",
-      "mobile": "9853650004",
+      "mobile": "9856430004",
       "scenario": "Dhiren accidentally gives a 6-character IFSC code 'SBIN00'. The assistant provides a helpful validation error explaining that Indian IFSC codes must be 11 alphanumeric characters. Dhiren checks his passbook and provides 'SBIN0005678', which is accepted, allowing successful submission.",
       "voice": "Retired tea garden staff; gives short truncated IFSC code at first.",
       "status": "PASS",
-      "duration_ms": 16867,
+      "duration_ms": 16367,
       "turns": [
         {
           "turn": 1,
@@ -357,9 +357,9 @@
           "tool_arguments": {},
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26715269 submitted successfully! Status: PENDING.",
+            "message": "Application SSP26587607 submitted successfully! Status: PENDING.",
             "next_step": "Your application is now in queue for Block Officer review. Track status anytime using get_my_application.",
-            "application_no": "SSP26715269",
+            "application_no": "SSP26587607",
             "applicant_name": "Dhiren Borah",
             "block": "Dhemaji Pathar",
             "application_status": "PENDING"
@@ -378,11 +378,11 @@
       "role": "citizen",
       "name": "Runu Saikia",
       "category": "Shared Bank Account (Spouse Review Flag)",
-      "mobile": "9853650005",
+      "mobile": "9856430005",
       "scenario": "Runu provides a bank account number that was already submitted by another applicant (C1). Under Decision D5, the portal allows the citizen submission to complete rather than stranding rural elders, while tagging the case with a SHARED_BANK_ACCOUNT verification flag for the Block Officer to review.",
       "voice": "Senior homemaker; shares a joint bank savings account with her family member.",
       "status": "PASS",
-      "duration_ms": 11819,
+      "duration_ms": 14206,
       "turns": [
         {
           "turn": 1,
@@ -391,9 +391,9 @@
           "tool_arguments": {},
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26304786 submitted successfully! Status: PENDING.",
+            "message": "Application SSP26472872 submitted successfully! Status: PENDING.",
             "next_step": "Your application is now in queue for Block Officer review. Track status anytime using get_my_application.",
-            "application_no": "SSP26304786",
+            "application_no": "SSP26472872",
             "applicant_name": "Runu Saikia",
             "block": "Khelua",
             "application_status": "PENDING"
@@ -412,11 +412,11 @@
       "role": "citizen",
       "name": "Pabitra Barua",
       "category": "In-Flight Status Inquiry",
-      "mobile": "9853650006",
+      "mobile": "9856430006",
       "scenario": "Pabitra already holds a submitted application in the portal. He signs in to check his application status. The assistant calls get_my_application, reports that the case is PENDING review with the Namti Block Office, displays his masked bank account number (********1234) for privacy, and explains the 15-day SLA.",
       "voice": "Inquiring senior who submitted last week; wants to know progress.",
       "status": "PASS",
-      "duration_ms": 20012,
+      "duration_ms": 17532,
       "turns": [
         {
           "turn": 1,
@@ -425,16 +425,16 @@
           "tool_arguments": {},
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26145483 is currently PENDING.",
+            "message": "Application SSP26490885 is currently PENDING.",
             "next_step": "You may withdraw if pending, or contact your Block Development Office for updates.",
             "has_submitted_application": true,
-            "application_no": "SSP26145483",
+            "application_no": "SSP26490885",
             "applicant_name": "Pabitra Barua",
             "application_status": "PENDING",
             "block": "Namti",
             "village": "Namti Dakhin",
             "bank_account": "********5544",
-            "submitted_at": "31/10/2026 10:51",
+            "submitted_at": "31/10/2026 12:51",
             "can_withdraw": true
           }
         }
@@ -450,11 +450,11 @@
       "role": "citizen",
       "name": "Hemaprabha Kalita",
       "category": "Multi-Turn Guided Draft Preservation",
-      "mobile": "9853650007",
+      "mobile": "9856430007",
       "scenario": "Hemaprabha provides her name and DOB in Turn 1, then her address and gender in Turn 2, and asks the assistant to check what is still missing. The assistant confirms draft persistence in PostgreSQL agent_drafts, identifies that bank account, IFSC, and age proof document remain pending, without losing prior fields.",
       "voice": "Slow, methodical senior providing details one piece at a time across multiple turns.",
       "status": "PASS",
-      "duration_ms": 14800,
+      "duration_ms": 13222,
       "turns": [
         {
           "turn": 1,
@@ -572,25 +572,25 @@
       "role": "citizen",
       "name": "Tarun Chutia",
       "category": "Application Withdrawal & Re-eligibility",
-      "mobile": "9853650008",
+      "mobile": "9856430008",
       "scenario": "Tarun submits an application, realizes he made an error, and explicitly asks to cancel it. The assistant calls withdraw_application with confirmation. The portal marks status WITHDRAWN, writes a WITHDRAW audit event, and frees his mobile number to apply again.",
       "voice": "Realizes he entered an incorrect village and wants to withdraw his pending application.",
       "status": "PASS",
-      "duration_ms": 17953,
+      "duration_ms": 14275,
       "turns": [
         {
           "turn": 1,
-          "user_message": "I entered the wrong village name for application SSP26525957. Please withdraw it so I can reapply.",
+          "user_message": "I entered the wrong village name for application SSP26527496. Please withdraw it so I can reapply.",
           "tool_called": "withdraw_application",
           "tool_arguments": {
             "confirm": true
           },
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26525957 has been withdrawn. You may now apply afresh if needed.",
+            "message": "Application SSP26527496 has been withdrawn. You may now apply afresh if needed.",
             "next_step": "You may submit a fresh application at any time if required.",
             "application_status": "WITHDRAWN",
-            "application_no": "SSP26525957"
+            "application_no": "SSP26527496"
           }
         }
       ],
@@ -609,11 +609,11 @@
       "role": "citizen",
       "name": "Minati Chetia",
       "category": "Scheme Information & Deadline Check",
-      "mobile": "9853650009",
+      "mobile": "9856430009",
       "scenario": "Minati asks the assistant: How much money is given? Who is eligible? What documents are needed? And when does the application window close? The assistant calls scheme_info, clearly explaining Rs 1,000/month, age 60+, the 6 pilot blocks, accepted proofs (Aadhaar, Voter ID, PAN, Ration Card), and the deadline (31 Dec 2026).",
       "voice": "Elderly woman asking general scheme questions before applying.",
       "status": "PASS",
-      "duration_ms": 7543,
+      "duration_ms": 8723,
       "turns": [
         {
           "turn": 1,
@@ -642,7 +642,7 @@
               "PAN Card"
             ],
             "deadline": "2026-12-31 23:59",
-            "hours_left": 1471,
+            "hours_left": 1469,
             "window_open": true
           }
         }
@@ -657,11 +657,11 @@
       "role": "citizen",
       "name": "Jogen Phukan",
       "category": "Out-of-Boundary Block Guidance",
-      "mobile": "9853650010",
+      "mobile": "9856430010",
       "scenario": "Jogen wants to apply from 'Guwahati Urban'. The assistant checks eligibility and portal configuration, and politely explains that under Government of Purvanchal pilot notification CR-2026-031, the portal is currently active only for Sonari, Rajapara, Dhemaji Pathar, Borgaon, Namti, and Khelua blocks.",
       "voice": "Senior living outside the pilot district asking to apply from Kamrup Metro.",
       "status": "PASS",
-      "duration_ms": 10514,
+      "duration_ms": 8769,
       "turns": [
         {
           "turn": 1,
@@ -690,11 +690,11 @@
       "role": "citizen",
       "name": "Bhupen Medhi",
       "category": "Secure Document Upload Link Lifecycle",
-      "mobile": "9853650011",
+      "mobile": "9856430011",
       "scenario": "Bhupen fills his draft details and requests a document upload link. The assistant generates a single-use tokenized upload URL (/upload/<token>) expiring in 30 minutes (Decision D3). Bhupen uploads his document, and the assistant confirms document presence and completes submission.",
       "voice": "Senior citizen with mobile smartphone ready to upload photo of age certificate.",
       "status": "PASS",
-      "duration_ms": 16843,
+      "duration_ms": 15349,
       "turns": [
         {
           "turn": 1,
@@ -703,9 +703,9 @@
           "tool_arguments": {},
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26955687 submitted successfully! Status: PENDING.",
+            "message": "Application SSP26300692 submitted successfully! Status: PENDING.",
             "next_step": "Your application is now in queue for Block Officer review. Track status anytime using get_my_application.",
-            "application_no": "SSP26955687",
+            "application_no": "SSP26300692",
             "applicant_name": "Bhupen Medhi",
             "block": "Khelua",
             "application_status": "PENDING"
@@ -724,11 +724,11 @@
       "role": "citizen",
       "name": "Lilabati Das",
       "category": "Shared Kiosk / Cyber Cafe Sign Out",
-      "mobile": "9853650012",
+      "mobile": "9856430012",
       "scenario": "After checking her application details, Lilabati tells the assistant that she is using a shared computer at the village CSC center and wants to sign out immediately. The assistant calls sign_out, revoking the session via /internal/v1/session_revoke so subsequent calls are blocked with HTTP 401 Unauthorized.",
       "voice": "Applying from a shared Common Service Centre (CSC) computer; privacy-conscious.",
       "status": "PASS",
-      "duration_ms": 10571,
+      "duration_ms": 9870,
       "turns": [
         {
           "turn": 1,
@@ -756,7 +756,7 @@
       "officer_username": "anjali",
       "scenario": "Anjali is the Block Development Officer for Sonari. In her morning triage routine, she calls my_queue to inspect pending applications. The assistant returns Sonari cases ordered oldest-first, displaying SLA days left and highlighting any cases approaching the 15-day statutory deemed-approval deadline.",
       "status": "PASS",
-      "duration_ms": 6235,
+      "duration_ms": 6322,
       "turns": [
         {
           "turn": 1,
@@ -765,16 +765,16 @@
           "tool_arguments": {},
           "tool_result": {
             "status": "success",
-            "message": "Retrieved 18 pending case(s) for Sonari (total pending: 18).",
+            "message": "Retrieved 6 pending case(s) for Sonari (total pending: 6).",
             "next_step": "Use view_case with an application_no to inspect full dossier, or approve_case/reject_case.",
-            "total_pending": 18,
+            "total_pending": 6,
             "page": 1,
             "block": "Sonari",
             "cases": [
               {
                 "applicant_name": "Kamala Borah",
                 "application_id": 100011,
-                "application_no": "SSP26369731",
+                "application_no": "SSP26233833",
                 "bank_account": "********9012",
                 "block": "Sonari",
                 "days_left_sla": 15,
@@ -783,13 +783,13 @@
                 "ifsc": "SBIN0003077",
                 "is_overdue": false,
                 "mobile": "9876540001",
-                "submitted_at": "2026-10-31 08:57",
+                "submitted_at": "2026-10-31 12:42",
                 "village": "Lakhipur"
               },
               {
                 "applicant_name": "Kamala Borah",
-                "application_id": 100044,
-                "application_no": "SSP26259538",
+                "application_id": 100012,
+                "application_no": "SSP26414227",
                 "bank_account": "********9012",
                 "block": "Sonari",
                 "days_left_sla": 15,
@@ -797,134 +797,59 @@
                 "dob": "01/01/1954",
                 "ifsc": "SBIN0003077",
                 "is_overdue": false,
-                "mobile": "9876540020",
-                "submitted_at": "2026-10-31 09:18",
-                "village": "Lakhipur"
-              },
-              {
-                "applicant_name": "Kamala Borah",
-                "application_id": 100047,
-                "application_no": "SSP26568705",
-                "bank_account": "********9012",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "01/01/1954",
-                "ifsc": "SBIN0003077",
-                "is_overdue": false,
-                "mobile": "9818935853",
-                "submitted_at": "2026-10-31 09:23",
-                "village": "Lakhipur"
-              },
-              {
-                "applicant_name": "Kamala Borah",
-                "application_id": 100050,
-                "application_no": "SSP26460674",
-                "bank_account": "********9012",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "01/01/1954",
-                "ifsc": "SBIN0003077",
-                "is_overdue": false,
-                "mobile": "9830240808",
-                "submitted_at": "2026-10-31 09:23",
+                "mobile": "9838923830",
+                "submitted_at": "2026-10-31 12:43",
                 "village": "Lakhipur"
               },
               {
                 "applicant_name": "Sonari Queue Senior",
-                "application_id": 100056,
-                "application_no": "SSP26956419",
-                "bank_account": "********3121",
+                "application_id": 100016,
+                "application_no": "SSP26724638",
+                "bank_account": "********4591",
                 "block": "Sonari",
                 "days_left_sla": 15,
                 "days_pending": 0,
                 "dob": "15/05/1958",
                 "ifsc": "SBIN0001234",
                 "is_overdue": false,
-                "mobile": "9874686411",
-                "submitted_at": "2026-10-31 10:12",
+                "mobile": "9865374637",
+                "submitted_at": "2026-10-31 12:45",
                 "village": "Sonari Central"
               },
               {
                 "applicant_name": "First Senior",
-                "application_id": 100057,
-                "application_no": "SSP26112499",
-                "bank_account": "********7152",
+                "application_id": 100017,
+                "application_no": "SSP26273039",
+                "bank_account": "********6761",
                 "block": "Sonari",
                 "days_left_sla": 15,
                 "days_pending": 0,
                 "dob": "15/05/1958",
                 "ifsc": "SBIN0001234",
                 "is_overdue": false,
-                "mobile": "9839851869",
-                "submitted_at": "2026-10-31 10:12",
+                "mobile": "9822041660",
+                "submitted_at": "2026-10-31 12:46",
                 "village": "Sonari Central"
               },
               {
                 "applicant_name": "Second Senior",
-                "application_id": 100058,
-                "application_no": "SSP26201331",
-                "bank_account": "********7152",
+                "application_id": 100018,
+                "application_no": "SSP26856215",
+                "bank_account": "********6761",
                 "block": "Sonari",
                 "days_left_sla": 15,
                 "days_pending": 0,
                 "dob": "15/05/1958",
                 "ifsc": "SBIN0001234",
                 "is_overdue": false,
-                "mobile": "9811549204",
-                "submitted_at": "2026-10-31 10:12",
-                "village": "Sonari Central"
-              },
-              {
-                "applicant_name": "Sonari Queue Senior",
-                "application_id": 100061,
-                "application_no": "SSP26260175",
-                "bank_account": "********1669",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "15/05/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9838196943",
-                "submitted_at": "2026-10-31 10:16",
-                "village": "Sonari Central"
-              },
-              {
-                "applicant_name": "First Senior",
-                "application_id": 100062,
-                "application_no": "SSP26833939",
-                "bank_account": "********2268",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "15/05/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9839407877",
-                "submitted_at": "2026-10-31 10:16",
-                "village": "Sonari Central"
-              },
-              {
-                "applicant_name": "Second Senior",
-                "application_id": 100063,
-                "application_no": "SSP26341544",
-                "bank_account": "********2268",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "15/05/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9852464375",
-                "submitted_at": "2026-10-31 10:16",
+                "mobile": "9893418255",
+                "submitted_at": "2026-10-31 12:46",
                 "village": "Sonari Central"
               },
               {
                 "applicant_name": "Bhaben Hazarika",
-                "application_id": 100066,
-                "application_no": "SSP26119240",
+                "application_id": 100022,
+                "application_no": "SSP26639279",
                 "bank_account": "********9012",
                 "block": "Sonari",
                 "days_left_sla": 15,
@@ -932,113 +857,8 @@
                 "dob": "12/03/1958",
                 "ifsc": "SBIN0001234",
                 "is_overdue": false,
-                "mobile": "9854011001",
-                "submitted_at": "2026-10-31 10:26",
-                "village": "Namti Ali"
-              },
-              {
-                "applicant_name": "Sonari Queue Senior",
-                "application_id": 100071,
-                "application_no": "SSP26267664",
-                "bank_account": "********4496",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "15/05/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9883314669",
-                "submitted_at": "2026-10-31 10:34",
-                "village": "Sonari Central"
-              },
-              {
-                "applicant_name": "First Senior",
-                "application_id": 100072,
-                "application_no": "SSP26969637",
-                "bank_account": "********5479",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "15/05/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9841928988",
-                "submitted_at": "2026-10-31 10:35",
-                "village": "Sonari Central"
-              },
-              {
-                "applicant_name": "Second Senior",
-                "application_id": 100073,
-                "application_no": "SSP26853663",
-                "bank_account": "********5479",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "15/05/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9844302359",
-                "submitted_at": "2026-10-31 10:35",
-                "village": "Sonari Central"
-              },
-              {
-                "applicant_name": "Sonari Queue Senior",
-                "application_id": 100076,
-                "application_no": "SSP26194208",
-                "bank_account": "********7503",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "15/05/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9834665031",
-                "submitted_at": "2026-10-31 10:36",
-                "village": "Sonari Central"
-              },
-              {
-                "applicant_name": "First Senior",
-                "application_id": 100077,
-                "application_no": "SSP26779291",
-                "bank_account": "********8569",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "15/05/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9857696694",
-                "submitted_at": "2026-10-31 10:36",
-                "village": "Sonari Central"
-              },
-              {
-                "applicant_name": "Second Senior",
-                "application_id": 100078,
-                "application_no": "SSP26813941",
-                "bank_account": "********8569",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "15/05/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9833864936",
-                "submitted_at": "2026-10-31 10:36",
-                "village": "Sonari Central"
-              },
-              {
-                "applicant_name": "Bhaben Hazarika",
-                "application_id": 100087,
-                "application_no": "SSP26599566",
-                "bank_account": "********9012",
-                "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0,
-                "dob": "12/03/1958",
-                "ifsc": "SBIN0001234",
-                "is_overdue": false,
-                "mobile": "9853650001",
-                "submitted_at": "2026-10-31 10:50",
+                "mobile": "9856430001",
+                "submitted_at": "2026-10-31 12:50",
                 "village": "Namti Ali"
               }
             ]
@@ -1058,7 +878,7 @@
       "officer_username": "anjali",
       "scenario": "Officer Anjali requests overdue_summary to assess compliance across all blocks under the Purvanchal Right to Public Services Act. The assistant returns total pending, overdue (>15 days), SLA limits, and statutory context.",
       "status": "PASS",
-      "duration_ms": 6203,
+      "duration_ms": 6360,
       "turns": [
         {
           "turn": 1,
@@ -1067,76 +887,76 @@
           "tool_arguments": {},
           "tool_result": {
             "status": "success",
-            "message": "SLA Summary: 34 total pending, 0 currently overdue (>15 days).",
+            "message": "SLA Summary: 13 total pending, 0 currently overdue (>15 days).",
             "next_step": "Inspect urgent cases immediately using view_case to take action before automatic deemed approval.",
-            "total_pending": 34,
+            "total_pending": 13,
             "total_overdue": 0,
             "sla_days": 15,
             "blocks": [
               {
                 "block": "Sonari",
                 "overdue": 0,
-                "pending": 18
-              },
-              {
-                "block": "Khelua",
-                "overdue": 0,
                 "pending": 6
               },
               {
                 "block": "Dhemaji Pathar",
                 "overdue": 0,
-                "pending": 4
+                "pending": 2
               },
               {
-                "block": "Namti",
+                "block": "Khelua",
                 "overdue": 0,
-                "pending": 3
+                "pending": 2
               },
               {
                 "block": "Rajapara",
                 "overdue": 0,
-                "pending": 3
+                "pending": 2
+              },
+              {
+                "block": "Namti",
+                "overdue": 0,
+                "pending": 1
               }
             ],
             "urgent_cases": [
               {
                 "applicant_name": "Kamala Borah",
                 "application_id": 100011,
-                "application_no": "SSP26369731",
+                "application_no": "SSP26233833",
                 "block": "Sonari",
                 "days_left_sla": 15,
                 "days_pending": 0
               },
               {
                 "applicant_name": "Kamala Borah",
-                "application_id": 100044,
-                "application_no": "SSP26259538",
+                "application_id": 100012,
+                "application_no": "SSP26414227",
                 "block": "Sonari",
                 "days_left_sla": 15,
                 "days_pending": 0
               },
               {
                 "applicant_name": "Phul Mati Chetia",
-                "application_id": 100045,
-                "application_no": "SSP26693326",
+                "application_id": 100013,
+                "application_no": "SSP26640475",
                 "block": "Dhemaji Pathar",
                 "days_left_sla": 15,
                 "days_pending": 0
               },
               {
-                "applicant_name": "Kamala Borah",
-                "application_id": 100047,
-                "application_no": "SSP26568705",
+                "applicant_name": "Kamala Devi",
+                "application_id": 100015,
+                "application_no": "SSP26113859",
+                "block": "Rajapara",
+                "days_left_sla": 15,
+                "days_pending": 0
+              },
+              {
+                "applicant_name": "Sonari Queue Senior",
+                "application_id": 100016,
+                "application_no": "SSP26724638",
                 "block": "Sonari",
-                "days_left_sla": 15,
-                "days_pending": 0
-              },
-              {
-                "applicant_name": "Phul Mati Chetia",
-                "application_id": 100048,
-                "application_no": "SSP26489199",
-                "block": "Dhemaji Pathar",
                 "days_left_sla": 15,
                 "days_pending": 0
               }
@@ -1158,22 +978,22 @@
       "officer_username": "anjali",
       "scenario": "Anjali opens the case dossier for Runu Saikia (C5) who shares a bank account with Bhaben Hazarika (C1). The assistant calls view_case, displaying applicant details, bank account, document presence, and specifically surfaces the SHARED_BANK_ACCOUNT review flag along with applicant count sharing the same account.",
       "status": "PASS",
-      "duration_ms": 6205,
+      "duration_ms": 6435,
       "turns": [
         {
           "turn": 1,
-          "user_message": "Open case dossier for application SSP26304786 to review flags.",
+          "user_message": "Open case dossier for application SSP26472872 to review flags.",
           "tool_called": "view_case",
           "tool_arguments": {
-            "application_no": "SSP26304786"
+            "application_no": "SSP26472872"
           },
           "tool_result": {
             "status": "success",
-            "message": "Dossier loaded for Runu Saikia (SSP26304786). 1 review flag(s) identified.",
+            "message": "Dossier loaded for Runu Saikia (SSP26472872). 1 review flag(s) identified.",
             "next_step": "Use approve_case or reject_case (reason required) to record your official decision.",
-            "application_no": "SSP26304786",
+            "application_no": "SSP26472872",
             "applicant_name": "Runu Saikia",
-            "mobile": "9853650005",
+            "mobile": "9856430005",
             "dob": "05/09/1963",
             "age_at_submission": 63,
             "gender": "Female",
@@ -1190,21 +1010,21 @@
             "flags": [
               {
                 "flag": "SHARED_BANK_ACCOUNT",
-                "message": "Bank account is shared with 9 other active/approved application(s).",
+                "message": "Bank account is shared with 3 other active/approved application(s).",
                 "severity": "INFO"
               }
             ],
             "audit_trail": [
               {
                 "action": "SUBMIT",
-                "actor": "applicant:9853650005",
-                "at": "2026-10-31 10:51:08",
+                "actor": "applicant:9856430005",
+                "at": "2026-10-31 12:51:26",
                 "note": ""
               },
               {
                 "action": "SUBMIT",
-                "actor": "applicant:9853650005",
-                "at": "2026-10-31 10:51:08",
+                "actor": "applicant:9856430005",
+                "at": "2026-10-31 12:51:26",
                 "note": "via agent: Citizen AI Assistant"
               }
             ],
@@ -1225,21 +1045,21 @@
       "officer_username": "anjali",
       "scenario": "Anjali reviews a verified 68-year-old applicant (C1 Bhaben Hazarika) with clean age proof and electoral roll verification. She calls approve_case with remarks 'Physical age proof and voter roll verified cleanly'. The portal updates status to APPROVED, records officer:anjali in audit_log, and triggers citizen SMS.",
       "status": "PASS",
-      "duration_ms": 8415,
+      "duration_ms": 8637,
       "turns": [
         {
           "turn": 1,
-          "user_message": "Approve application SSP26599566 with note: Physical age proof and electoral roll verified cleanly.",
+          "user_message": "Approve application SSP26639279 with note: Physical age proof and electoral roll verified cleanly.",
           "tool_called": "approve_case",
           "tool_arguments": {
-            "application_no": "SSP26599566",
+            "application_no": "SSP26639279",
             "remarks": "Physical age proof and electoral roll verified cleanly"
           },
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26599566 has been APPROVED by anjali.",
+            "message": "Application SSP26639279 has been APPROVED by anjali.",
             "next_step": "Approval has been logged in the audit trail and citizen notified via SMS.",
-            "application_no": "SSP26599566",
+            "application_no": "SSP26639279",
             "decision": "APPROVED",
             "decided_by": "anjali",
             "application_status": "APPROVED"
@@ -1262,21 +1082,21 @@
       "officer_username": "anjali",
       "scenario": "Anjali inspects an application where the uploaded age proof is unreadable and the applicant is determined to be underage. She calls reject_case with mandatory plain-language reason 'Age proof certificate is unreadable scan; voter ID confirms age 54'. The portal enforces non-empty justification, sets status to REJECTED, and records the note in audit_log.",
       "status": "PASS",
-      "duration_ms": 6346,
+      "duration_ms": 6493,
       "turns": [
         {
           "turn": 1,
-          "user_message": "Reject application SSP26715269 because Age proof certificate is unreadable scan; voter ID confirms age 54.",
+          "user_message": "Reject application SSP26587607 because Age proof certificate is unreadable scan; voter ID confirms age 54.",
           "tool_called": "reject_case",
           "tool_arguments": {
-            "application_no": "SSP26715269",
+            "application_no": "SSP26587607",
             "reason": "Age proof certificate is unreadable scan; voter ID confirms age 54"
           },
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26715269 has been REJECTED by anjali.",
+            "message": "Application SSP26587607 has been REJECTED by anjali.",
             "next_step": "Rejection and stated reason recorded in the permanent audit trail; citizen notified via SMS.",
-            "application_no": "SSP26715269",
+            "application_no": "SSP26587607",
             "decision": "REJECTED",
             "reason": "Age proof certificate is unreadable scan; voter ID confirms age 54",
             "decided_by": "anjali",
@@ -1300,20 +1120,20 @@
       "officer_username": "anjali",
       "scenario": "Anjali accidentally clicks approve again on a case that she already approved in O4. The assistant calls approve_case. Under Invariant 1 and Decision D1, the portal returns already_decided without failing, without writing duplicate conflicting audit rows, and leaves the application cleanly APPROVED.",
       "status": "PASS",
-      "duration_ms": 6288,
+      "duration_ms": 6455,
       "turns": [
         {
           "turn": 1,
-          "user_message": "Approve application SSP26599566 again.",
+          "user_message": "Approve application SSP26639279 again.",
           "tool_called": "approve_case",
           "tool_arguments": {
-            "application_no": "SSP26599566"
+            "application_no": "SSP26639279"
           },
           "tool_result": {
             "status": "success",
-            "message": "Application SSP26599566 has been APPROVED by anjali.",
+            "message": "Application SSP26639279 has been APPROVED by anjali.",
             "next_step": "Approval has been logged in the audit trail and citizen notified via SMS.",
-            "application_no": "SSP26599566",
+            "application_no": "SSP26639279",
             "decision": "APPROVED",
             "decided_by": "anjali",
             "application_status": "APPROVED"

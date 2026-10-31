@@ -274,7 +274,7 @@ def test_gate5_full_submission_and_lifecycle(citizen_session):
     r_track = client.call_tool("get_my_application")
     assert r_track.get("has_submitted_application") is True
     assert r_track.get("application_no") == app_no
-    assert r_track.get("status") == "PENDING"
+    assert r_track.get("application_status") == "PENDING" or r_track.get("status") == "PENDING"
     assert r_track.get("bank_account") == "********1098"
     assert r_track.get("can_withdraw") is True
 
@@ -285,7 +285,7 @@ def test_gate5_full_submission_and_lifecycle(citizen_session):
 
     # Status now WITHDRAWN
     r_after = client.call_tool("get_my_application")
-    assert r_after.get("status") == "WITHDRAWN"
+    assert r_after.get("application_status") == "WITHDRAWN" or r_after.get("status") == "WITHDRAWN"
     assert r_after.get("can_withdraw") is False
 
     # 6. Sign out
