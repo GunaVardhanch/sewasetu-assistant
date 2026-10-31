@@ -48,6 +48,36 @@ services:
     expose:
       - "8025"
 
+  mcp-citizen:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    command: ["python", "-m", "uvicorn", "mcp_citizen.server:app", "--host", "0.0.0.0", "--port", "8001"]
+    environment:
+      PORTAL_INTERNAL_URL: http://app:8000
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8000}
+      CITIZEN_RESOURCE_URL: http://localhost:8001/mcp/citizen
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key-2026}
+    depends_on:
+      - app
+    ports:
+      - "8001:8001"
+
+  mcp-officer:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    command: ["python", "-m", "uvicorn", "mcp_officer.server:app", "--host", "0.0.0.0", "--port", "8002"]
+    environment:
+      PORTAL_INTERNAL_URL: http://app:8000
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8000}
+      OFFICER_RESOURCE_URL: http://localhost:8002/mcp/officer
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key-2026}
+    depends_on:
+      - app
+    ports:
+      - "8002:8002"
+
 volumes:
   pgdata:
   uploads:

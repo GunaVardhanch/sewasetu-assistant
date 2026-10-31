@@ -5,63 +5,609 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sewa Setu — Autonomous Agent Evaluation Dashboard</title>
 <style>
-body{font-family:Segoe UI,Helvetica,Arial,sans-serif;margin:0;background:#f4f6f9;color:#222;line-height:1.5}
-.header{background:#0b3d6e;color:#fff;padding:18px 36px;display:flex;justify-content:space-between;align-items:center}
-.header h1{margin:0;font-size:24px;font-weight:600}
-.header .sub{font-size:13px;color:#cfe0f3;margin-top:4px}
-.header .badge-prod{background:#28a745;color:#fff;font-size:12px;padding:4px 10px;border-radius:12px;font-weight:600}
-.band{background:#f7931e;height:6px}
-.main{max-width:1180px;margin:28px auto;padding:0 20px}
+:root {
+  --primary: #0b3d6e;
+  --primary-dark: #072647;
+  --primary-light: #15559a;
+  --accent-saffron: #f7931e;
+  --bg-app: #f4f7fa;
+  --surface-card: #ffffff;
+  --border-light: #e2e8f0;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --citizen-bubble: #eff6ff;
+  --citizen-border: #bfdbfe;
+  --officer-bubble: #f5f3ff;
+  --officer-border: #ddd6fe;
+  --assistant-bubble: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  background: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+  padding: 22px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.header .sub {
+  font-size: 13px;
+  color: #cfe0f3;
+  margin-top: 5px;
+}
+.header .badge-prod {
+  background: #28a745;
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(40,167,69,0.3);
+}
+.band {
+  background: var(--accent-saffron);
+  height: 6px;
+}
+
+.main {
+  max-width: 1240px;
+  margin: 28px auto;
+  padding: 0 20px;
+}
 
 /* KPI Cards */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:28px}
-.kpi-card{background:#fff;padding:20px;border-radius:8px;border:1px solid #d7dbe0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.kpi-title{font-size:13px;text-transform:uppercase;color:#666;font-weight:600;letter-spacing:0.5px}
-.kpi-val{font-size:32px;font-weight:700;color:#0b3d6e;margin:8px 0 4px}
-.kpi-sub{font-size:12px;color:#28a745;font-weight:600}
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.kpi-card {
+  background: var(--surface-card);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+.kpi-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+.kpi-val {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 8px 0 4px;
+  letter-spacing: -0.5px;
+}
+.kpi-sub {
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 600;
+}
 
 /* Sections */
-.section{background:#fff;border-radius:8px;border:1px solid #d7dbe0;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:24px;margin-bottom:28px}
-.section h2{margin-top:0;font-size:19px;color:#0b3d6e;border-bottom:2px solid #f0f2f5;padding-bottom:12px}
+.section {
+  background: var(--surface-card);
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  padding: 26px;
+  margin-bottom: 28px;
+}
+.section h2 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
 /* Tabs */
-.tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid #ddd;padding-bottom:8px}
-.tab-btn{background:#e9ecef;border:none;padding:8px 18px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;color:#495057}
-.tab-btn.active{background:#0b3d6e;color:#fff}
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 12px;
+}
+.tab-btn {
+  background: #e2e8f0;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+.tab-btn:hover {
+  background: #cbd5e1;
+  color: #1e293b;
+}
+.tab-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(11,61,110,0.25);
+}
 
 /* Persona Cards */
-.persona-card{border:1px solid #e1e4e8;border-radius:6px;margin-bottom:16px;overflow:hidden;background:#fafbfc}
-.persona-header{padding:14px 18px;background:#fff;border-bottom:1px solid #e1e4e8;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-.persona-info{display:flex;align-items:center;gap:12px}
-.badge-id{background:#0b3d6e;color:#fff;font-weight:700;font-size:13px;padding:3px 9px;border-radius:4px}
-.badge-id.officer{background:#6c5ce7}
-.badge-pass{background:#d4edda;color:#155724;border:1px solid #c3e6cb;font-weight:700;font-size:12px;padding:3px 10px;border-radius:12px}
-.persona-name{font-size:16px;font-weight:600;color:#1a1f2c}
-.persona-cat{font-size:13px;color:#6a737d}
-.persona-body{padding:18px;background:#fff;display:none}
-.persona-body.open{display:block}
+.persona-card {
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  transition: border-color 0.15s ease;
+}
+.persona-card:hover {
+  border-color: #cbd5e1;
+}
+.persona-header {
+  padding: 16px 20px;
+  background: #fff;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.persona-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.badge-id {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+.badge-id.officer {
+  background: #6366f1;
+}
+.badge-pass {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.persona-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.persona-cat {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+.persona-body {
+  padding: 22px;
+  background: #f8fafc;
+  display: none;
+  border-top: 1px solid #edf2f7;
+}
+.persona-body.open {
+  display: block;
+}
 
 /* Detail grids */
-.details-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;margin-bottom:16px}
-.detail-box{background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;padding:12px 14px}
-.detail-box h4{margin:0 0 6px;font-size:13px;color:#495057;text-transform:uppercase}
-.detail-box p{margin:0;font-size:13px;color:#212529}
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.detail-box {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+.detail-box h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.detail-box p {
+  margin: 0;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.5;
+}
 
-/* Transcript */
-.transcript-wrap{background:#1e1e1e;color:#d4d4d4;border-radius:6px;padding:14px;font-family:Consolas,monaco,monospace;font-size:12px;overflow-x:auto;max-height:360px;margin-top:12px}
-.t-turn{border-bottom:1px solid #333;padding:8px 0}
-.t-turn:last-child{border-bottom:none}
-.t-user{color:#569cd6;font-weight:bold}
-.t-tool{color:#4ec9b0}
-.t-res{color:#ce9178}
+/* ==========================================================================
+   Modern Chat UI — Front-end Conversation Stream
+   ========================================================================== */
+.chat-stream-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Turn Wrapper */
+.turn-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed #cbd5e1;
+}
+.turn-block:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Turn Divider / Counter */
+.turn-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0 6px;
+}
+.turn-divider span {
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Message Rows */
+.msg-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* Avatars */
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.citizen-avatar {
+  background: #dbeafe;
+  border: 2px solid #93c5fd;
+}
+.officer-avatar {
+  background: #ede9fe;
+  border: 2px solid #c4b5fd;
+}
+.assistant-avatar {
+  background: #dcfce7;
+  border: 2px solid #86efac;
+}
+
+/* Message Bubbles */
+.msg-bubble {
+  max-width: 90%;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.msg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+.msg-sender {
+  font-size: 13px;
+  font-weight: 700;
+}
+.msg-time {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* User Message Styling */
+.user-msg-row {
+  align-self: flex-start;
+  width: 100%;
+}
+.citizen-bubble {
+  background: #eff6ff;
+  border: 1px solid var(--citizen-border);
+  color: #1e3a8a;
+  border-top-left-radius: 2px;
+}
+.officer-bubble {
+  background: #f5f3ff;
+  border: 1px solid var(--officer-border);
+  color: #3730a3;
+  border-top-left-radius: 2px;
+}
+
+/* MCP Tool Action Bar */
+.tool-action-bar {
+  margin-left: 50px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.tool-pill {
+  background: #0b3d6e;
+  color: #fff;
+  font-family: Consolas, "SFMono-Regular", Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.tool-args-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.arg-tag {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: Consolas, monospace;
+  font-size: 11px;
+}
+
+/* Assistant Message Styling */
+.assistant-msg-row {
+  align-self: flex-start;
+  width: 100%;
+}
+.assistant-bubble {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+  border-top-left-radius: 2px;
+  width: 100%;
+}
+.status-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.status-pill.success {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+.status-pill.error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+.assistant-content {
+  font-size: 14px;
+  margin: 6px 0 10px;
+  color: #0f172a;
+}
+
+/* Next Step Guidance Alert */
+.next-step-box {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-left: 4px solid #10b981;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-top: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.next-step-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+.next-step-text {
+  font-size: 13px;
+  color: #065f46;
+  line-height: 1.4;
+}
+
+/* Highlight Badges in Output */
+.highlight-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.h-badge {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+.h-badge.app-num {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  font-family: Consolas, monospace;
+}
+.h-badge.upload-link {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+.h-badge.upload-link a {
+  color: #0284c7;
+  text-decoration: underline;
+  word-break: break-all;
+}
+.h-badge.eligible-yes {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+.h-badge.eligible-no {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+.h-badge.flag {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #ffedd5;
+}
+
+/* Collapsible JSON Inspector */
+.json-inspector {
+  margin-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
+}
+.json-inspector summary {
+  font-size: 12px;
+  color: #64748b;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+.json-inspector summary:hover {
+  color: var(--primary);
+}
+.json-payload {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+  font-family: Consolas, "SFMono-Regular", Menlo, monospace;
+  font-size: 12px;
+  overflow-x: auto;
+  max-height: 280px;
+  margin: 8px 0 0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
 
 /* Narrative fixes */
-.fix-item{border-left:4px solid #28a745;background:#f8fdf9;padding:12px 16px;margin-bottom:12px;border-radius:0 6px 6px 0}
-.fix-title{font-weight:700;color:#1e7e34;font-size:14px;margin-bottom:4px}
-.fix-desc{font-size:13px;color:#333}
+.fix-item {
+  border-left: 4px solid #28a745;
+  background: #f8fdf9;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  border-radius: 0 8px 8px 0;
+}
+.fix-title {
+  font-weight: 700;
+  color: #1e7e34;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.fix-desc {
+  font-size: 13px;
+  color: #334155;
+}
 
-.footer{text-align:center;padding:24px 0;font-size:13px;color:#6c757d}
-.footer a{color:#0b3d6e;text-decoration:none;margin:0 8px}
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 0;
+  font-size: 13px;
+  color: #64748b;
+  border-top: 1px solid var(--border-light);
+  margin-top: 40px;
+}
+.footer a {
+  color: var(--primary);
+  text-decoration: none;
+  margin: 0 8px;
+  font-weight: 600;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
 </style>
 <script>
 function filterTab(category) {
@@ -79,16 +625,28 @@ function toggleTranscript(id) {
     const el = document.getElementById('body-' + id);
     el.classList.toggle('open');
 }
+function toggleAll(open) {
+    document.querySelectorAll('.persona-body').forEach(el => {
+        if (open) {
+            el.classList.add('open');
+        } else {
+            el.classList.remove('open');
+        }
+    });
+}
 </script>
 </head>
 <body>
 <div class="header">
   <div>
-    <h1>Sewa Setu &mdash; Autonomous Persona Evaluation Dashboard</h1>
+    <h1>Sewa Setu &mdash; Autonomous Agent Evaluation Dashboard</h1>
     <div class="sub">Department of Social Welfare &middot; Government of Purvanchal &middot; Streamable HTTP MCP Suite</div>
   </div>
   <div>
-    <span class="badge-prod">100% INVARIANTS VERIFIED</span>
+    <span class="badge-prod">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      100% INVARIANTS VERIFIED
+    </span>
   </div>
 </div>
 <div class="band"></div>
@@ -121,7 +679,7 @@ function toggleTranscript(id) {
   <!-- Narrative Fixes Section -->
   <div class="section">
     <h2>What the Personas Taught Us &amp; What We Fixed</h2>
-    <p style="font-size: 14px; color: #555; margin-bottom: 16px;">
+    <p style="font-size: 14px; color: #475569; margin-bottom: 18px;">
       Direct observations from simulated small-model conversations against the Sewa Setu portal, driving our architectural hardening:
     </p>
     {% for fix in narrative.key_fixes %}
@@ -134,7 +692,13 @@ function toggleTranscript(id) {
 
   <!-- Personas List Section -->
   <div class="section">
-    <h2>Evaluation Personas &amp; Live Transcripts</h2>
+    <h2>
+      <span>Evaluation Personas &amp; Conversational Transcripts</span>
+      <span style="font-size: 12px; font-weight: normal; display: flex; gap: 8px;">
+        <button onclick="toggleAll(true)" style="background:#f1f5f9; border:1px solid #cbd5e1; padding:4px 10px; border-radius:6px; cursor:pointer; font-weight:600; color:#334155;">Expand All</button>
+        <button onclick="toggleAll(false)" style="background:#f1f5f9; border:1px solid #cbd5e1; padding:4px 10px; border-radius:6px; cursor:pointer; font-weight:600; color:#334155;">Collapse All</button>
+      </span>
+    </h2>
     
     <div class="tabs">
       <button class="tab-btn active" onclick="filterTab('all')">All Personas (18)</button>
@@ -152,14 +716,18 @@ function toggleTranscript(id) {
             <span class="persona-cat">&mdash; {{ p.category }}</span>
           </div>
         </div>
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span style="font-size:12px; color:#888;">{{ p.duration_ms }} ms</span>
-          <span class="badge-pass">PASS</span>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <span style="font-size:12px; color:#64748b; font-family:Consolas, monospace;">{{ p.duration_ms }} ms</span>
+          <span class="badge-pass">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            PASS
+          </span>
           <span style="font-size:14px; color:#0b3d6e; font-weight:bold;">&#9662;</span>
         </div>
       </div>
       
       <div class="persona-body" id="body-{{ p.id }}">
+        <!-- Persona Scenario & Assertions Grid -->
         <div class="details-grid">
           <div class="detail-box">
             <h4>Human Scenario</h4>
@@ -173,7 +741,7 @@ function toggleTranscript(id) {
           {% endif %}
           <div class="detail-box">
             <h4>PostgreSQL Database Assertions</h4>
-            <p style="font-family: monospace; font-size: 12px; color: #0b3d6e;">
+            <p style="font-family: Consolas, monospace; font-size: 12px; color: #0b3d6e; line-height: 1.6;">
               {% for k, v in p.db_assertions.items() %}
                 <b>{{ k }}:</b> {{ v }}<br>
               {% endfor %}
@@ -181,18 +749,119 @@ function toggleTranscript(id) {
           </div>
         </div>
 
-        <div style="font-size: 13px; font-weight: 600; color: #495057; margin-top: 14px;">
-          Multi-Turn Conversation &amp; Tool Call Transcript:
+        <!-- Modern Front-end Chat Stream -->
+        <div class="chat-stream-title">
+          <span>💬 Conversational Assistant &amp; MCP Tool Execution Flow</span>
         </div>
-        <div class="transcript-wrap">
+
+        <div class="chat-container">
           {% for t in p.turns %}
-          <div class="t-turn">
-            <div><span class="t-user">Turn {{ t.turn }} [User]:</span> {{ t.user_message }}</div>
-            <div><span class="t-tool">&rarr; MCP Call:</span> <code>{{ t.tool_called }}({{ t.tool_arguments }})</code></div>
-            <div><span class="t-res">&larr; Tool Output:</span> {{ t.tool_result }}</div>
+          <div class="turn-block">
+            <div class="turn-divider">
+              <span>Turn {{ t.turn }}</span>
+            </div>
+
+            <!-- Citizen or Officer Message Bubble -->
+            <div class="msg-row user-msg-row">
+              <div class="avatar {% if p.role == 'officer' %}officer-avatar{% else %}citizen-avatar{% endif %}">
+                {% if p.role == 'officer' %}👔{% else %}👤{% endif %}
+              </div>
+              <div class="msg-bubble {% if p.role == 'officer' %}officer-bubble{% else %}citizen-bubble{% endif %}">
+                <div class="msg-header">
+                  <span class="msg-sender">{{ p.name }} ({% if p.role == 'officer' %}Block Officer{% else %}Citizen{% endif %})</span>
+                  <span class="msg-time">Turn {{ t.turn }}</span>
+                </div>
+                <div>{{ t.user_message }}</div>
+              </div>
+            </div>
+
+            <!-- MCP Tool Call Action Bar -->
+            <div class="tool-action-bar">
+              <span class="tool-pill">
+                <span>⚡ MCP:</span>
+                <code>{{ t.tool_called }}</code>
+              </span>
+              {% if t.tool_arguments %}
+              <div class="tool-args-list">
+                {% for k, v in t.tool_arguments.items() %}
+                <span class="arg-tag"><strong>{{ k }}:</strong> {{ v }}</span>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- AI Assistant Response Bubble -->
+            <div class="msg-row assistant-msg-row">
+              <div class="avatar assistant-avatar">🤖</div>
+              <div class="msg-bubble assistant-bubble">
+                <div class="msg-header">
+                  <span class="msg-sender" style="color: #0b3d6e;">Sewa Setu AI Assistant</span>
+                  <span class="status-pill {% if t.tool_result.status == 'success' %}success{% else %}error{% endif %}">
+                    {{ t.tool_result.status }}
+                  </span>
+                </div>
+
+                <div class="assistant-content">
+                  {{ t.tool_result.message }}
+                </div>
+
+                <!-- Highlight Badges -->
+                <div class="highlight-badges">
+                  {% if t.tool_result.application_no %}
+                  <span class="h-badge app-num">
+                    📄 Application No: <strong>{{ t.tool_result.application_no }}</strong>
+                  </span>
+                  {% endif %}
+
+                  {% if t.tool_result.eligible is defined and t.tool_result.eligible is not none %}
+                    {% if t.tool_result.eligible %}
+                    <span class="h-badge eligible-yes">✅ Eligible (Age: {{ t.tool_result.age }})</span>
+                    {% else %}
+                    <span class="h-badge eligible-no">⚠️ Ineligible (Age: {{ t.tool_result.age }})</span>
+                    {% endif %}
+                  {% endif %}
+
+                  {% if t.tool_result.upload_url %}
+                  <span class="h-badge upload-link">
+                    📎 Secure Upload: <a href="{{ t.tool_result.upload_url }}" target="_blank">Open Upload Portal</a>
+                  </span>
+                  {% endif %}
+
+                  {% if t.tool_result.flags %}
+                    {% for f in t.tool_result.flags %}
+                    <span class="h-badge flag">🚩 Flag: {{ f.flag }} ({{ f.message }})</span>
+                    {% endfor %}
+                  {% endif %}
+
+                  {% if t.tool_result.validation_errors %}
+                    {% for err in t.tool_result.validation_errors %}
+                    <span class="h-badge eligible-no">⚠️ {{ err }}</span>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+
+                <!-- Next Step Recommendation Box -->
+                {% if t.tool_result.next_step %}
+                <div class="next-step-box">
+                  <span class="next-step-icon">💡</span>
+                  <div class="next-step-text">
+                    <strong>Next Step:</strong> {{ t.tool_result.next_step }}
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Collapsible Technical JSON Payload -->
+                <details class="json-inspector">
+                  <summary>🔍 View MCP Raw Response Payload (JSON)</summary>
+                  <pre class="json-payload"><code>{{ t.tool_result | tojson(indent=2) }}</code></pre>
+                </details>
+              </div>
+            </div>
+
           </div>
           {% endfor %}
         </div>
+
       </div>
     </div>
     {% endfor %}

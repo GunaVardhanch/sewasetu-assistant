@@ -4,18 +4,22 @@
 <h2>Enter OTP</h2>
 <p class="note">An OTP has been dispatched to <b>{{ mobile }}</b> via the Virtual Telecom Gateway.</p>
 
-<div style="background:#f0f7ff; border:1px solid #b6d4fe; border-radius:8px; padding:16px; margin:16px 0; max-width:480px;">
+<div
+  style="background:#f0f7ff; border:1px solid #b6d4fe; border-radius:8px; padding:16px; margin:16px 0; max-width:480px;">
   <p style="margin:0 0 10px 0; font-size:14px; color:#084298;">
-    <b>Virtual SMS Gateway:</b> Your OTP has arrived in the virtual SMS console. Click the button below to view and copy your code:
+    <b>Virtual SMS Gateway:</b> Your OTP has arrived in the virtual SMS console. Click the button below to view and copy
+    your code:
   </p>
-  <a href="/__gateway/" target="_blank" class="btn" style="background:#1a3c6e; color:#fff; text-decoration:none; padding:8px 16px; border-radius:4px; font-weight:bold; display:inline-block;">
+  <a href="/__gateway/" target="_blank" class="btn"
+    style="background:#1a3c6e; color:#fff; text-decoration:none; padding:8px 16px; border-radius:4px; font-weight:bold; display:inline-block;">
     📱 Open Virtual SMS Gateway &rarr;
   </a>
 </div>
 
 <form method="post">
   <label>Enter 6-digit OTP</label>
-  <input type="text" name="otp" maxlength="6" autofocus placeholder="Paste 6-digit code" style="max-width:220px; font-size:18px; letter-spacing:3px; padding:6px 10px;">
+  <input type="text" name="otp" maxlength="6" autofocus placeholder="Paste 6-digit code"
+    style="max-width:220px; font-size:18px; letter-spacing:3px; padding:6px 10px;">
   <p><button class="btn" type="submit">Verify &amp; Continue</button></p>
 </form>
 {% endblock %}
