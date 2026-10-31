@@ -20,10 +20,14 @@ services:
       # the address at which people reach this portal; stamped into sign-in tokens and
       # discovery documents, so it must be the public one when deployed
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8000}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-dev-internal-key-2026}
+      SCHEME_DEADLINE: ${SCHEME_DEADLINE:-2026-12-31 23:59}
+      AGENT_ENABLED_BLOCKS: ${AGENT_ENABLED_BLOCKS:-Sonari,Rajapara,Dhemaji Pathar,Borgaon,Namti,Khelua}
     depends_on:
       - db
       - smsgw
     volumes:
+      - ./portal:/app
       - uploads:/var/sewasetu/uploads
       - applogs:/var/log/sewasetu
 

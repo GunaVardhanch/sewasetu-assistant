@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+{% if success %}
+<div style="background:#def7ec;border:1px solid #31c48d;color:#03543f;padding:15px;border-radius:6px;margin:20px 0;">
+  <h3 style="margin-top:0;">Document Uploaded Successfully</h3>
+  <p>File <b>{{ filename }}</b> has been verified and attached to your application draft.</p>
+  <p>You can now return to your AI assistant conversation to proceed with submission.</p>
+</div>
+{% else %}
+<div style="background:#fde8e8;border:1px solid #f98080;color:#9b1c1c;padding:15px;border-radius:6px;margin:20px 0;">
+  <h3 style="margin-top:0;">Upload Not Available</h3>
+  <p>{{ error }}</p>
+  <p>If you need assistance, please request a new upload link from your assistant.</p>
+</div>
+{% endif %}
+{% endblock %}

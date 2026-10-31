@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Upload Age Proof Document</h2>
+<p class="note">Authorized upload for mobile: <b>{{ mobile }}</b> (Link valid until {{ expires_at }})</p>
+
+{% if error %}
+<div class="flash" style="background:#fde8e8;color:#9b1c1c;padding:10px;border-radius:4px;margin-bottom:15px;">
+  {{ error }}
+</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+  <label for="document">Choose Age Proof Document (Aadhaar, Voter ID, PAN, Ration Card, Birth Certificate)</label>
+  <input type="file" id="document" name="document" accept=".pdf,.jpg,.jpeg,.png" required style="margin: 15px 0; display:block;">
+  <p class="note">Accepted formats: JPG, PNG, PDF. Maximum size: 5 MB.</p>
+  <button class="btn" type="submit">Upload Document</button>
+</form>
+{% endblock %}
