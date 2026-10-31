@@ -1,7 +1,9 @@
+setuptools>=69.0.0
+tzdata
 Flask==2.2.5
 psycopg2-binary==2.9.9
 requests==2.28.2
 fpdf2==2.7.4
-gunicorn==20.1.0
-PyJWT[crypto]==2.9.0
+gunicorn>=22.0.0
+PyJWT[crypto]>=2.9.0
 pyotp>=2.8.0

@@ -22,7 +22,11 @@ import pyotp
 from datetime import datetime, date, timedelta
 from zoneinfo import ZoneInfo
 
-IST = ZoneInfo("Asia/Kolkata")
+try:
+    IST = ZoneInfo("Asia/Kolkata")
+except Exception:
+    import datetime as dt
+    IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 
 
 def now_ist():
@@ -94,6 +98,11 @@ except Exception:
 
 
 def get_db():
+    db_url = os.environ.get("DATABASE_URL")
+    if db_url:
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql://", 1)
+        return psycopg2.connect(db_url)
     return psycopg2.connect(
         host=config.get("database", "host"),
         port=config.get("database", "port"),
